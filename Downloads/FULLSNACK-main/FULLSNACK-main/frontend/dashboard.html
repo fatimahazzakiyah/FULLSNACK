@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌿 Dashboard Admin - Healthy Snack Store</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --nature-green: #2d6a4f; /* Hijau Sayuran */
+            --light-green: #d8f3dc; /* Hijau Muda Segar */
+            --carrot-orange: #ff9f1c; /* Oranye Buah */
+            --organic-cream: #f8f9f5; /* Putih Tulang/Krem */
+            --dark-text: #1b4332;
+        }
+
+        body { 
+            font-family: 'Quicksand', sans-serif; 
+            background-color: var(--organic-cream); 
+            margin: 0; 
+            color: var(--dark-text);
+        }
+
+        h1, h2, h3, .brand { font-family: 'Poppins', sans-serif; }
+
+        /* Navbar Segar */
+        .navbar { 
+            background: var(--nature-green);
+            color: white; 
+            padding: 15px 40px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .brand { font-size: 1.6rem; display: flex; align-items: center; gap: 10px; }
+
+        .user-info { display: flex; align-items: center; gap: 20px; }
+        
+        button { 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            transition: 0.3s; 
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .btn-logout { background: rgba(255,255,255,0.2); color: white; padding: 8px 20px; border: 1px solid white; }
+        .btn-logout:hover { background: white; color: var(--nature-green); }
+        
+        /* Container */
+        .main-content { padding: 40px; max-width: 1200px; margin: auto; }
+
+        /* Card Organik */
+        .card { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 8px 20px rgba(45,106,79,0.05); 
+            margin-bottom: 30px; 
+            border-left: 5px solid var(--nature-green);
+        }
+
+        .card h2 { color: var(--nature-green); margin-bottom: 25px; font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
+        
+        /* Form Input */
+        .form-group { display: flex; gap: 15px; flex-wrap: wrap; }
+        
+        input { 
+            flex: 1;
+            min-width: 200px;
+            padding: 14px 20px; 
+            border: 2px solid #e0e7e1; 
+            border-radius: 10px; 
+            font-size: 1rem; 
+            background: #fff;
+            transition: 0.3s;
+            font-family: 'Quicksand', sans-serif;
+        }
+        
+        input:focus { outline: none; border-color: var(--nature-green); background: #fdfdfd; }
+
+        .btn-add { background: var(--carrot-orange); color: white; padding: 14px 30px; font-size: 1rem; box-shadow: 0 4px 10px rgba(255,159,28,0.3); }
+        .btn-add:hover { background: #e68a00; transform: translateY(-2px); }
+        
+        /* Tabel Bersih & Rata Tengah */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+
+        th { 
+            background-color: var(--light-green); 
+            color: var(--nature-green); 
+            padding: 18px; 
+            text-align: center; /* TULISAN HEADER JADI TENGAH */
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+        
+        td { 
+            padding: 20px 18px; 
+            border-bottom: 1px solid #eee; 
+            text-align: center; /* TULISAN ISI TABEL JADI TENGAH */
+        }
+        
+        tbody tr:hover { background-color: #fcfdfc; }
+
+        /* Biar tombol aksi tetep rapi di tengah */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* Status Label */
+        .stock-label { 
+            background: var(--light-green); 
+            color: var(--nature-green); 
+            padding: 4px 12px; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            font-size: 0.9rem;
+        }
+
+        /* Tombol Aksi */
+        .btn-edit { background: #f1f5f2; color: var(--nature-green); padding: 8px 16px; margin-right: 5px; }
+        .btn-edit:hover { background: var(--nature-green); color: white; }
+        
+        .btn-delete { background: #fff1f0; color: #e74c3c; padding: 8px 16px; }
+        .btn-delete:hover { background: #e74c3c; color: white; }
+
+        .footer { text-align: center; color: #999; padding: 20px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="brand">🥦 <span>Dried Fruit & Veggie Store</span></div>
+        <div class="user-info">
+            <span>Halo, <strong>Selamat Datang</strong></span>
+            <button class="btn-logout" onclick="logout()">Keluar</button>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="card">
+            <h2>🍎 Input Produk Snack Sehat</h2>
+            <div class="form-group">
+                <input type="text" id="prod-name" placeholder="Nama Snack (Contoh: Keripik Apel)">
+                <input type="number" id="prod-price" placeholder="Harga Jual (Rp)">
+                <input type="number" id="prod-stock" placeholder="Jumlah Stok">
+                <button id="btn-save" class="btn-add" onclick="simpanProduk()">+ Tambah ke Katalog</button>
+            </div>
+        </div>
+
+        <div class="card" style="border-left-color: var(--carrot-orange);">
+            <h2>📦 Inventaris Snack</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nama Produk</th>
+                        <th>Harga Satuan</th>
+                        <th>Sisa Stok</th>
+                        <th>Pengaturan</th>
+                    </tr>
+                </thead>
+                <tbody id="tabel-produk">
+                    </tbody>
+            </table>
+        </div>
+        
+        <div class="footer">Dashboard Manajemen Produk - © 2026 Healthy Snack Store</div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        window.onload = muatData;
+    </script>
+</body>
+</html>

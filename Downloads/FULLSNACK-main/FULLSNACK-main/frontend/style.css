@@ -1,0 +1,19 @@
+body{
+font-family: Arial;
+text-align:center;
+margin-top:100px;
+}
+
+input{
+display:block;
+margin:10px auto;
+padding:10px;
+width:200px;
+}
+
+button{
+padding:10px 20px;
+background:green;
+color:white;
+border:none;
+}
