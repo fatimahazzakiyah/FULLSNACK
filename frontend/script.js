@@ -1,69 +1,64 @@
 const API = "http://localhost:5000/api/auth";
 
-/* LOGIN */
-function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  fetch(API + "/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      email: email,
-      password: password,
-    }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      alert(data.message);
-
-      if (data.message === "Login berhasil") {
-        localStorage.setItem("login", "true");
-        window.location.href = "dashboard.html";
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      alert("Server tidak terhubung");
-    });
-}
-
-/* REGISTER */
+// REGISTER
 function register() {
-  const name = document.getElementById("name").value;
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
 
-  fetch(API + "/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      name: name,
-      email: email,
-      password: password,
-    }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      alert(data.message);
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    fetch(API + "/register", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            name,
+            email,
+            password,
+            role: "user"
+        })
     })
-    .catch((err) => {
-      console.log(err);
-      alert("Server tidak terhubung");
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        window.location.href = "login.html";
     });
 }
 
-/* LOGOUT */
-function logout() {
-  localStorage.removeItem("login");
+// LOGIN
+function login() {
 
-  alert("Logout berhasil");
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-  window.location.href = "login.html";
+    fetch(API + "/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            email,
+            password
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        alert(data.message);
+
+        if (data.role === "admin") {
+            window.location.href = "admin.html";
+        } else {
+            window.location.href = "dashboard.html";
+        }
+    });
 }
 
-//update by dd arra//
+// LOGOUT
+function logout() {
+    alert("Logout berhasil");
+    window.location.href = "login.html";
+}
+
+//update//
