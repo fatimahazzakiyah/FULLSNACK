@@ -30,3 +30,5 @@ class AuthController {
 }
 
 module.exports = AuthController;
+
+//by maulidya//
