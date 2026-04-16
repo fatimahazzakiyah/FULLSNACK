@@ -29,10 +29,4 @@ class AuthController {
     }
 }
 
-<<<<<<< HEAD
 module.exports = AuthController;
-
-//by maulidya//
-=======
-module.exports = AuthController;
->>>>>>> bb72de95c50e0ca4d204180e9e87ba320645755c
