@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin FullSnack</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 40px;
+        background-color: #f4f7f6;
+      }
+      .container {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+      }
+      th {
+        background-color: #2c3e50;
+        color: white;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      input {
+        padding: 8px;
+        margin-right: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      button {
+        padding: 8px 15px;
+        cursor: pointer;
+        border: none;
+        border-radius: 4px;
+      }
+      .btn-add {
+        background-color: #27ae60;
+        color: white;
+      }
+      .btn-del {
+        background-color: #e74c3c;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Dashboard Produk FullSnack</h1>
+
+      <div style="background: #ecf0f1; padding: 20px; border-radius: 8px">
+        <h3>Tambah Produk Baru</h3>
+        <div class="form-group">
+          <input type="text" id="nama_produk" placeholder="Nama Produk" />
+          <input type="number" id="harga" placeholder="Harga" />
+          <input type="number" id="stok" placeholder="Stok" />
+          <input type="text" id="deskripsi" placeholder="Deskripsi" />
+          <button class="btn-add" onclick="tambahProduk()">
+            Simpan ke Database
+          </button>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nama Produk</th>
+            <th>Harga</th>
+            <th>Stok</th>
+            <th>Deskripsi</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="list-produk"></tbody>
+      </table>
+    </div>
+
+    <script>
+      const API_URL = "http://localhost:3000/api/products";
+
+      // 1. Ambil Data (GET)
+      async function fetchProduk() {
+        const response = await fetch(API_URL);
+        const result = await response.json();
+        const tableBody = document.getElementById("list-produk");
+        tableBody.innerHTML = "";
+
+        result.data.forEach((p) => {
+          tableBody.innerHTML += `
+                    <tr>
+                        <td>${p.id}</td>
+                        <td>${p.nama_produk}</td>
+                        <td>Rp ${p.harga.toLocaleString()}</td>
+                        <td>${p.stok}</td>
+                        <td>${p.deskripsi}</td>
+                        <td>
+                            <button class="btn-del" onclick="hapusProduk(${p.id})">Hapus</button>
+                        </td>
+                    </tr>
+                `;
+        });
+      }
+
+      // 2. Tambah Data (POST)
+      async function tambahProduk() {
+        const data = {
+          nama_produk: document.getElementById("nama_produk").value,
+          harga: document.getElementById("harga").value,
+          stok: document.getElementById("stok").value,
+          deskripsi: document.getElementById("deskripsi").value,
+        };
+
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        alert("Produk Berhasil Masuk Ke Database!");
+        fetchProduk(); // Refresh tabel
+      }
+
+      // 3. Hapus Data (DELETE - Tugas Arra)
+      async function hapusProduk(id) {
+        if (confirm("Yakin mau hapus produk ini?")) {
+          await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+          fetchProduk();
+        }
+      }
+
+      fetchProduk();
+    </script>
+  </body>
+</html>
