@@ -1,4 +1,6 @@
-JavaScript
+require('dotenv').config();
+const db = require('./config/database');
+
 const express = require('express');
 const app = express();
 const apiRouter = require('./routes/api');
