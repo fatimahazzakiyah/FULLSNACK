@@ -31,6 +31,28 @@ class ProductController {
             });
         });
     }
+
+    // Menambahkan data produk baru (Create/Store)
+    async store(req, res) {
+        const { nama, harga, stok } = req.body; // Mengambil data dari body request
+        
+        // Query untuk memasukkan data ke database
+        const query = "INSERT INTO products (nama, harga, stok) VALUES (?, ?, ?)";
+        
+        db.query(query, [nama, harga, stok], (err, results) => {
+            if (err) return res.status(500).json({ message: "Gagal simpan data", error: err });
+            
+            res.status(201).json({
+                message: "Produk berhasil ditambahkan!",
+                data: {
+                    id: results.insertId,
+                    nama,
+                    harga,
+                    stok
+                }
+            });
+        });
+    }
 }
 
 module.exports = new ProductController();
