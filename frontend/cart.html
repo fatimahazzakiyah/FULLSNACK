@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Cart</title>
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #ffe6f0;
+            text-align: center;
+        }
+
+        h1 {
+            color: #d63384;
+        }
+
+        table {
+            margin: auto;
+            border-collapse: collapse;
+            width: 70%;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background-color: #ff99cc;
+            color: white;
+            padding: 10px;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #fff0f5;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🛒 List Belanja</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>Nama Produk</th>
+        <th>Jumlah</th>
+        <th>Harga</th>
+        <th>Aksi</th>
+    </tr>
+    </thead>
+    <tbody id="cart-list"></tbody>
+</table>
+
+<h2 id="total"></h2>
+
+<script>
+async function getCart() {
+    const response = await fetch('http://localhost:3000/api/cart');
+    const data = await response.json();
+
+    const cartList = document.getElementById('cart-list');
+    const totalText = document.getElementById('total');
+
+    cartList.innerHTML = '';
+    let total = 0;
+
+    data.forEach(item => {
+    const subtotal = item.harga * item.jumlah;
+    total += subtotal;
+
+    cartList.innerHTML += `
+        <tr>
+            <td>${item.nama}</td>
+            <td>${item.jumlah}</td>
+            <td>Rp ${item.harga}</td>
+            <td>
+                <button onclick="deleteItem(${item.id_cart_item})">Hapus</button>
+            </td>
+        </tr>
+    `;
+});
+
+    totalText.innerHTML = "Total: Rp " + total;
+}
+
+getCart();
+async function deleteItem(id) {
+    await fetch(`http://localhost:3000/api/cart/${id}`, {
+        method: 'DELETE'
+    });
+
+    getCart(); // refresh tabel
+}
+</script>
+</body>
+</html>
