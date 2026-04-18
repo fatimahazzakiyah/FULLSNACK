@@ -1,18 +1,20 @@
 const mysql = require('mysql2');
+require('dotenv').config();
 
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'fullsnack' // <--- PASTIKAN NAMA INI SAMA DENGAN DI PHPMYADMIN
+const connection = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    port: process.env.DB_PORT // ← WAJIB ADA INI
 });
 
-db.connect((err) => {
+connection.connect((err) => {
     if (err) {
-        console.error('Gagal koneksi database:', err);
-    } else {
-        console.log('Berhasil terhubung ke database MySQL!');
+        console.error('Gagal koneksi database: ' + err.stack);
+        return;
     }
+    console.log('Berhasil terhubung ke database MySQL!');
 });
 
-module.exports = db;
+module.exports = connection;

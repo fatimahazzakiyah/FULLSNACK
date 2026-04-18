@@ -1,9 +1,9 @@
-const db = require('../config/database'); 
+const db = require("../config/database");
 
-const ProductController = {
-    // Bagian Index yang dikerjakan Tiya
-    async index(req, res) {
-        const query = "SELECT * FROM products";
+class ProductController {
+  // 1. Menampilkan semua data
+  async index(req, res) {
+        const query = "SELECT * FROM products"; // Pastikan narik semua kolom (id, nama_produk, harga, stok, deskripsi)
         
         db.query(query, (err, results) => {
             if (err) {
@@ -12,21 +12,90 @@ const ProductController = {
                     error: err 
                 });
             }
+            
+            // Respon JSON sesuai standar Pertemuan 4
             res.status(200).json({
                 message: "Berhasil menampilkan semua data produk untuk katalog",
                 data: results
             });
         });
-    },
-
-    async show(req, res) {
-        res.send("Fungsi show belum diisi Revani");
-    },
-
-    async store(req, res) {
-        res.send("Fungsi store belum diisi Revani");
     }
-};
 
-// GANTI BARIS INI: Harus sesuai nama object di atas
-module.exports = ProductController;
+  // 2. Menampilkan detail satu produk
+  async show(req, res) {
+    const { id } = req.params;
+    const query = "SELECT * FROM products WHERE id = ?";
+    db.query(query, [id], (err, results) => {
+      if (err)
+        return res
+          .status(500)
+          .json({ message: "Gagal ambil detail", error: err });
+      if (results.length === 0) {
+        return res.status(404).json({ message: "Produk tidak ditemukan" });
+      }
+      res.json({
+        message: "Menampilkan detail produk",
+        data: results[0],
+      });
+    });
+  }
+
+  // 3. Menambahkan data produk baru
+  async store(req, res) {
+    const { nama_produk, harga, stok, deskripsi } = req.body;
+    const query =
+      "INSERT INTO products (nama_produk, harga, stok, deskripsi) VALUES (?, ?, ?, ?)";
+    db.query(query, [nama_produk, harga, stok, deskripsi], (err, results) => {
+      if (err)
+        return res
+          .status(500)
+          .json({ message: "Gagal simpan data", error: err });
+      res.status(201).json({
+        message: "Produk berhasil ditambahkan!",
+        data: { id: results.insertId, nama_produk, harga, stok, deskripsi },
+      });
+    });
+  }
+
+  // 4. Update Data Produk
+  async update(req, res) {
+    const { id } = req.params;
+    const { nama_produk, harga, stok, deskripsi } = req.body;
+    const query =
+      "UPDATE products SET nama_produk = ?, harga = ?, stok = ?, deskripsi = ? WHERE id = ?";
+
+    db.query(
+      query,
+      [nama_produk, harga, stok, deskripsi, id],
+      (err, results) => {
+        if (err)
+          return res
+            .status(500)
+            .json({ message: "Gagal update data", error: err });
+        if (results.affectedRows === 0) {
+          return res.status(404).json({ message: "Produk tidak ditemukan" });
+        }
+        res.json({ message: "Produk berhasil diupdate!" });
+      },
+    );
+  }
+
+  // 5. Hapus Data Produk
+  async destroy(req, res) {
+    const { id } = req.params;
+    const query = "DELETE FROM products WHERE id = ?";
+
+    db.query(query, [id], (err, results) => {
+      if (err)
+        return res
+          .status(500)
+          .json({ message: "Gagal hapus data", error: err });
+      if (results.affectedRows === 0) {
+        return res.status(404).json({ message: "Produk tidak ditemukan" });
+      }
+      res.json({ message: "Produk berhasil dihapus!" });
+    });
+  }
+}
+
+module.exports = new ProductController();
