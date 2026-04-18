@@ -23,79 +23,36 @@ class ProductController {
 
   // 2. Menampilkan detail satu produk
   async show(req, res) {
-    const { id } = req.params;
-    const query = "SELECT * FROM products WHERE id = ?";
-    db.query(query, [id], (err, results) => {
-      if (err)
-        return res
-          .status(500)
-          .json({ message: "Gagal ambil detail", error: err });
-      if (results.length === 0) {
-        return res.status(404).json({ message: "Produk tidak ditemukan" });
-      }
-      res.json({
-        message: "Menampilkan detail produk",
-        data: results[0],
-      });
-    });
-  }
+        const { id } = req.params; // Mengambil ID dari URL (misal: /api/products/1)
+        const query = "SELECT * FROM products WHERE id_product = ?";
 
-  // 3. Menambahkan data produk baru
-  async store(req, res) {
-    const { nama_produk, harga, stok, deskripsi } = req.body;
-    const query =
-      "INSERT INTO products (nama_produk, harga, stok, deskripsi) VALUES (?, ?, ?, ?)";
-    db.query(query, [nama_produk, harga, stok, deskripsi], (err, results) => {
-      if (err)
-        return res
-          .status(500)
-          .json({ message: "Gagal simpan data", error: err });
-      res.status(201).json({
-        message: "Produk berhasil ditambahkan!",
-        data: { id: results.insertId, nama_produk, harga, stok, deskripsi },
-      });
-    });
-  }
+        db.query(query, [id], (err, results) => {
+            // 1. Cek jika terjadi error pada koneksi/query database
+            if (err) {
+                return res.status(500).json({ 
+                    message: "Internal Server Error", 
+                    error: err 
+                });
+            }
 
-  // 4. Update Data Produk
-  async update(req, res) {
-    const { id } = req.params;
-    const { nama_produk, harga, stok, deskripsi } = req.body;
-    const query =
-      "UPDATE products SET nama_produk = ?, harga = ?, stok = ?, deskripsi = ? WHERE id = ?";
+            // 2. Cek apakah ID produk ditemukan 
+            if (results.length === 0) {
+                return res.status(404).json({ 
+                    message: "Produk tidak ditemukan, periksa kembali ID anda" 
+                });
+            }
 
-    db.query(
-      query,
-      [nama_produk, harga, stok, deskripsi, id],
-      (err, results) => {
-        if (err)
-          return res
-            .status(500)
-            .json({ message: "Gagal update data", error: err });
-        if (results.affectedRows === 0) {
-          return res.status(404).json({ message: "Produk tidak ditemukan" });
-        }
-        res.json({ message: "Produk berhasil diupdate!" });
-      },
-    );
-  }
+            // 3. Jika ketemu, kirim data produk pertama (index 0)
+            res.status(200).json({
+                message: "Berhasil mengambil detail produk",
+                data: results[0]
+            });
+        });
+    }
 
-  // 5. Hapus Data Produk
-  async destroy(req, res) {
-    const { id } = req.params;
-    const query = "DELETE FROM products WHERE id = ?";
-
-    db.query(query, [id], (err, results) => {
-      if (err)
-        return res
-          .status(500)
-          .json({ message: "Gagal hapus data", error: err });
-      if (results.affectedRows === 0) {
-        return res.status(404).json({ message: "Produk tidak ditemukan" });
-      }
-      res.json({ message: "Produk berhasil dihapus!" });
-    });
-  }
+    async store(req, res) {
+        res.send("Fungsi store belum diisi Revani");
+    }
 }
 
 module.exports = new ProductController();
