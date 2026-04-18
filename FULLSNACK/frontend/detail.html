@@ -1,129 +1,127 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Detail Produk - FullSnack</title>
-
-    <!-- Font biar lebih bagus -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
-
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 50px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-
-        .back-link {
-            text-decoration: none;
-            color: #6c757d;
-            font-size: 14px;
-            margin-bottom: 20px;
-            display: inline-block;
-        }
-
-        .product-title {
-            color: #2c3e50;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-
-        .price {
-            color: #27ae60;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .info-label {
-            font-weight: bold;
-            color: #7f8c8d;
-            margin-top: 20px;
-        }
-
-        .description {
-            line-height: 1.6;
-            color: #34495e;
-            background: #fdfdfd;
-            padding: 15px;
-            border-left: 5px solid #27ae60;
-        }
-
-        .stock-tag {
-            display: inline-block;
-            background: #e8f5e9;
-            color: #2e7d32;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-        }
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 600px;
+        margin: 50px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+      .back-link {
+        text-decoration: none;
+        color: #6c757d;
+        font-size: 14px;
+        margin-bottom: 20px;
+        display: inline-block;
+      }
+      .product-title {
+        color: #2c3e50;
+        margin: 10px 0;
+        font-size: 28px;
+      }
+      .price {
+        color: #ff6b9d;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
+      .info-label {
+        font-weight: bold;
+        color: #7f8c8d;
+        margin-top: 20px;
+      }
+      .description {
+        line-height: 1.6;
+        color: #34495e;
+        background: #fdfdfd;
+        padding: 15px;
+        border-left: 5px solid #ff6b9d;
+        margin-top: 10px;
+      }
+      .stock-tag {
+        display: inline-block;
+        background: #e8f5e9;
+        color: #2e7d32;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <div class="container">
+      <a href="index.html" class="back-link">← Kembali ke Katalog</a>
+      <div id="loading">Memuat detail produk...</div>
 
-<div class="container">
-    <a href="index.html" class="back-link">← Kembali ke Katalog</a>
-
-    <div id="loading">Memuat detail produk...</div>
-
-    <div id="product-detail" style="display: none;">
+      <div id="product-detail" style="display: none">
         <h1 id="det-nama" class="product-title"></h1>
         <div id="det-stok" class="stock-tag"></div>
         <p id="det-harga" class="price"></p>
 
         <p class="info-label">Deskripsi Produk:</p>
         <div id="det-deskripsi" class="description"></div>
+      </div>
     </div>
-</div>
 
-<script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const productId = urlParams.get('id');
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const productId = urlParams.get("id");
 
-    async function loadDetail() {
+      async function loadDetail() {
         if (!productId) {
-            document.getElementById('loading').innerText = "Produk tidak ditemukan (ID kosong)";
-            return;
+          document.getElementById("loading").innerText =
+            "ID Produk tidak ditemukan di URL";
+          return;
         }
 
         try {
-            const response = await fetch(`http://localhost:3000/api/products/${productId}`);
-            const result = await response.json();
+          const response = await fetch(
+            `http://localhost:3000/api/products/${productId}`,
+          );
+          const result = await response.json();
 
-            if (response.status === 404) {
-                document.getElementById('loading').innerText = "Produk tidak ditemukan";
-                return;
-            }
+          if (response.status === 404) {
+            document.getElementById("loading").innerText =
+              "Produk tidak ditemukan di database";
+            return;
+          }
 
-            const produk = result.data;
+          const produk = result.data;
 
-            document.getElementById('det-nama').innerText = produk.nama;
-            document.getElementById('det-harga').innerText = `Rp ${produk.harga.toLocaleString()}`;
-            document.getElementById('det-stok').innerText = `Stok: ${produk.stok}`;
-            document.getElementById('det-deskripsi').innerText = produk.deskripsi || "Tidak ada deskripsi";
+          // Perbaikan: Sesuaikan dengan nama kolom database kamu
+          document.getElementById("det-nama").innerText = produk.nama_produk;
+          document.getElementById("det-harga").innerText =
+            `Rp ${produk.harga.toLocaleString()}`;
+          document.getElementById("det-stok").innerText =
+            `Stok: ${produk.stok}`;
+          document.getElementById("det-deskripsi").innerText =
+            produk.deskripsi || "Camilan enak yang wajib kamu coba!";
 
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('product-detail').style.display = 'block';
-
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("product-detail").style.display = "block";
         } catch (error) {
-            console.error(error);
-            document.getElementById('loading').innerText = "Gagal mengambil data dari server";
+          console.error(error);
+          document.getElementById("loading").innerText =
+            "Gagal terhubung ke server.";
         }
-    }
-
-    loadDetail();
-</script>
-
-</body>
+      }
+      loadDetail();
+    </script>
+  </body>
 </html>
