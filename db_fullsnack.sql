@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 17, 2026 at 04:51 AM
+-- Generation Time: Apr 18, 2026 at 05:54 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -31,8 +31,22 @@ CREATE TABLE `cart` (
   `id_cart` int(11) NOT NULL,
   `id_user` int(11) DEFAULT NULL,
   `status` enum('aktif','checkout') DEFAULT 'aktif',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `product_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `cart`
+--
+
+INSERT INTO `cart` (`id_cart`, `id_user`, `status`, `created_at`, `product_id`) VALUES
+(1, NULL, 'aktif', '2026-04-18 15:39:49', 1),
+(2, NULL, 'aktif', '2026-04-18 15:42:39', 1),
+(3, NULL, 'aktif', '2026-04-18 15:43:07', 2),
+(4, NULL, 'aktif', '2026-04-18 15:43:19', 1),
+(5, NULL, 'aktif', '2026-04-18 15:43:28', 1),
+(6, 1, 'aktif', '2026-04-18 15:47:33', 1),
+(7, 1, 'aktif', '2026-04-18 15:48:01', 1);
 
 -- --------------------------------------------------------
 
@@ -178,7 +192,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id_cart` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_cart` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `cart_items`
