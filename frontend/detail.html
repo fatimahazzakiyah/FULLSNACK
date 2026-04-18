@@ -40,7 +40,7 @@
         }
 
         .price {
-            color: #27ae60;
+            color: #ff6b9d;
             font-size: 24px;
             font-weight: bold;
             margin-bottom: 15px;
@@ -57,16 +57,30 @@
             color: #34495e;
             background: #fdfdfd;
             padding: 15px;
-            border-left: 5px solid #27ae60;
+            border-left: 5px solid #ff6b9d;
         }
 
         .stock-tag {
             display: inline-block;
-            background: #e8f5e9;
-            color: #2e7d32;
+            background: #ff6b9d;
+            color: #fdfdfd;
             padding: 5px 12px;
             border-radius: 20px;
             font-size: 12px;
+        }
+
+        .btn-cart {
+            margin-top:20px;
+            padding:10px 20px;
+            background:#ff6b9d;
+            color:white;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+        }
+
+        .btn-cart:hover {
+            background:#ff6b9d;
         }
     </style>
 </head>
@@ -84,6 +98,11 @@
 
         <p class="info-label">Deskripsi Produk:</p>
         <div id="det-deskripsi" class="description"></div>
+
+        <!-- TOMBOL TAMBAH KE KERANJANG -->
+        <button onclick="addToCart()" class="btn-cart">
+            Tambah ke Keranjang
+        </button>
     </div>
 </div>
 
@@ -119,6 +138,33 @@
         } catch (error) {
             console.error(error);
             document.getElementById('loading').innerText = "Gagal mengambil data dari server";
+        }
+    }
+
+    // FUNCTION ADD TO CART
+    async function addToCart() {
+        try {
+            const response = await fetch('http://localhost:3000/api/cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    product_id: productId
+                })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                alert(result.message || "Gagal tambah ke keranjang");
+                return;
+            }
+
+            alert("Produk berhasil ditambahkan ke keranjang!");
+        } catch (error) {
+            console.error(error);
+            alert("Terjadi error saat menghubungi server");
         }
     }
 
