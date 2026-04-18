@@ -1,146 +1,95 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Admin FullSnack</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog FullSnack</title>
+
     <style>
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        margin: 40px;
-        background-color: #f4f7f6;
-      }
-      .container {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-      }
-      th,
-      td {
-        border: 1px solid #ddd;
-        padding: 12px;
-        text-align: left;
-      }
-      th {
-        background-color: #2c3e50;
-        color: white;
-      }
-      .form-group {
-        margin-bottom: 15px;
-      }
-      input {
-        padding: 8px;
-        margin-right: 5px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-      }
-      button {
-        padding: 8px 15px;
-        cursor: pointer;
-        border: none;
-        border-radius: 4px;
-      }
-      .btn-add {
-        background-color: #27ae60;
-        color: white;
-      }
-      .btn-del {
-        background-color: #e74c3c;
-        color: white;
-      }
+        :root { 
+            --primary: #ff6b9d; 
+            --dark: #2c3e50; 
+            --light: #fff0f5; 
+        }
+
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: var(--light);
+            margin: 0; 
+            padding: 20px; 
+        }
+
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { color: var(--primary); }
+
+        .product-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+            gap: 20px; 
+        }
+
+        .card { 
+            background: white; 
+            border-radius: 15px; 
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+        }
+
+        .card-title { font-weight: bold; }
+        .card-price { color: var(--primary); }
+
+        .btn-detail {
+            display: block;
+            text-align: center;
+            background: var(--primary);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 10px;
+        }
     </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>Dashboard Produk FullSnack</h1>
+</head>
 
-      <div style="background: #ecf0f1; padding: 20px; border-radius: 8px">
-        <h3>Tambah Produk Baru</h3>
-        <div class="form-group">
-          <input type="text" id="nama_produk" placeholder="Nama Produk" />
-          <input type="number" id="harga" placeholder="Harga" />
-          <input type="number" id="stok" placeholder="Stok" />
-          <input type="text" id="deskripsi" placeholder="Deskripsi" />
-          <button class="btn-add" onclick="tambahProduk()">
-            Simpan ke Database
-          </button>
-        </div>
-      </div>
+<body>
 
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nama Produk</th>
-            <th>Harga</th>
-            <th>Stok</th>
-            <th>Deskripsi</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="list-produk"></tbody>
-      </table>
+    <div class="header">
+        <h1>Snack Katalog 🍿</h1>
+        <p>Temukan camilan favoritmu!</p>
     </div>
 
+    <div class="product-grid" id="katalog-list"></div>
+
     <script>
-      const API_URL = "http://localhost:3000/api/products";
+        const API_URL = 'http://localhost:3000/api/products';
 
-      // 1. Ambil Data (GET)
-      async function fetchProduk() {
-        const response = await fetch(API_URL);
-        const result = await response.json();
-        const tableBody = document.getElementById("list-produk");
-        tableBody.innerHTML = "";
+        async function loadKatalog() {
+            try {
+                const response = await fetch(API_URL);
+                const result = await response.json();
+                const container = document.getElementById('katalog-list');
 
-        result.data.forEach((p) => {
-          tableBody.innerHTML += `
-                    <tr>
-                        <td>${p.id}</td>
-                        <td>${p.nama_produk}</td>
-                        <td>Rp ${p.harga.toLocaleString()}</td>
-                        <td>${p.stok}</td>
-                        <td>${p.deskripsi}</td>
-                        <td>
-                            <button class="btn-del" onclick="hapusProduk(${p.id})">Hapus</button>
-                        </td>
-                    </tr>
-                `;
-        });
-      }
+                container.innerHTML = '';
 
-      // 2. Tambah Data (POST)
-      async function tambahProduk() {
-        const data = {
-          nama_produk: document.getElementById("nama_produk").value,
-          harga: document.getElementById("harga").value,
-          stok: document.getElementById("stok").value,
-          deskripsi: document.getElementById("deskripsi").value,
-        };
-
-        await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-
-        alert("Produk Berhasil Masuk Ke Database!");
-        fetchProduk(); // Refresh tabel
-      }
-
-      // 3. Hapus Data (DELETE - Tugas Arra)
-      async function hapusProduk(id) {
-        if (confirm("Yakin mau hapus produk ini?")) {
-          await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-          fetchProduk();
+                result.data.forEach(p => {
+    container.innerHTML += `
+        <div class="card">
+            <div class="card-img">No Image</div>
+            <div class="card-body">
+                <h3 class="card-title">${p.nama}</h3>
+                <p class="card-price">Rp ${p.harga.toLocaleString()}</p>
+                <a href="detail.html?id=${p.id_product}" class="btn-detail">Lihat Detail</a>
+            </div>
+        </div>
+    `;
+});
+            } catch (error) {
+                console.error(error);
+            }
         }
-      }
 
-      fetchProduk();
+        loadKatalog();
     </script>
-  </body>
+
+</body>
 </html>

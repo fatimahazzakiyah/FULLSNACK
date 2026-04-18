@@ -1,19 +1,17 @@
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const db = require("./config/database");
-const apiRouter = require("./routes/api");
+require('dotenv').config();
+const db = require('./config/database');
+
+const express = require('express');
+const cors = require('cors');
 
 const app = express();
+const apiRouter = require('./routes/api');
 
-// Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // Middleware agar bisa baca body JSON
 
-// Routes
-app.use("/api", apiRouter);
+app.use('/api', apiRouter); // Mengarahkan semua endpoint ke file api.js
 
-// Listener
 app.listen(3000, () => {
-  console.log("Server FullSnack running on http://localhost:3000");
+    console.log('Server FullSnack running on http://localhost:3000');
 });
