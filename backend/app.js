@@ -2,10 +2,14 @@ require('dotenv').config();
 const db = require('./config/database');
 
 const express = require('express');
+const cors = require('cors');
+
 const app = express();
 const apiRouter = require('./routes/api');
 
+app.use(cors());
 app.use(express.json()); // Middleware agar bisa baca body JSON
+
 app.use('/api', apiRouter); // Mengarahkan semua endpoint ke file api.js
 
 app.listen(3000, () => {

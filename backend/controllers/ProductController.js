@@ -16,7 +16,7 @@ class ProductController {
 
     async show(req, res) {
         const { id } = req.params;
-        const query = "SELECT * FROM products WHERE id = ?";
+        const query = "SELECT * FROM products WHERE id_product = ?";
 
         db.query(query, [id], (err, results) => {
             if (err) return res.status(500).json({ message: "Gagal ambil detail", error: err });
