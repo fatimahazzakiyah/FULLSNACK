@@ -68,19 +68,40 @@
             border-radius: 20px;
             font-size: 12px;
         }
+        .button-group {
+            display: flex;      /* Biar sejajar */
+            gap: 10px;          /* Biar ada jarak antar tombol */
+            margin-top: 20px;
+        }
 
+        .btn-cart, .btn-delete {
+            flex: 1;             /* Biar lebar kiri & kanan sama rata */
+            height: 45px;        /* Biar tingginya sama */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: bold;
+            color: white;
+            transition: 0.3s;
+        }
+        
+        /* Warna Pink buat Tambah */
         .btn-cart {
-            margin-top:20px;
-            padding:10px 20px;
-            background:#ff6b9d;
-            color:white;
-            border:none;
-            border-radius:8px;
-            cursor:pointer;
+            background-color: #ff6b9d; 
         }
 
         .btn-cart:hover {
-            background:#ff6b9d;
+            background-color: #ff4a85;
+        }
+
+        /* Warna Merah buat Hapus */
+        .btn-delete {
+            background-color: #de2c85; 
+        }
+
+        .btn-delete:hover {
+            background-color: #f6208b;
         }
     </style>
 </head>
@@ -99,10 +120,17 @@
         <p class="info-label">Deskripsi Produk:</p>
         <div id="det-deskripsi" class="description"></div>
 
-        <!-- TOMBOL TAMBAH KE KERANJANG -->
-        <button onclick="addToCart()" class="btn-cart">
-            Tambah ke Keranjang
-        </button>
+        <div class="button-group">
+            <!-- TOMBOL TAMBAH KE KERANJANG -->
+            <button onclick="addToCart()" class="btn-cart">
+                Tambah ke Keranjang
+            </button>
+
+            <!-- TOMBOL HAPUS DARI KERANJANG -->
+            <button onclick="deleteItem(productId)" class="btn-delete">
+                Hapus dari Keranjang
+            </button>
+        </div>
     </div>
 </div>
 
@@ -150,7 +178,7 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    product_id: productId
+                    id_product: productId
                 })
             });
 
@@ -165,6 +193,27 @@
         } catch (error) {
             console.error(error);
             alert("Terjadi error saat menghubungi server");
+        }
+    }
+
+    //FUNCTION DELETE ON CART
+    async function deleteItem(id) {
+    const isConfirmed = confirm("Apakah Anda yakin ingin menghapus item ini dari keranjang?");
+    
+    if (isConfirmed) {
+        try {
+            const response = await fetch(`http://localhost:3000/api/cart/${id}`, {
+                method: 'DELETE'
+            });
+            
+            const result = await response.json();
+            alert(result.message);
+            
+            location.reload(); 
+        } catch (error) {
+            console.error("Gagal hapus:", error);
+            alert("Terjadi kesalahan saat menghapus data.");
+            }
         }
     }
 
