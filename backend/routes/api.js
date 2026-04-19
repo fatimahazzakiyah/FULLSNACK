@@ -11,6 +11,7 @@ router.post('/products', ProductController.store);
 
 // CART
 router.post('/cart', CartController.store);
+router.delete('/cart/:id', CartController.destroy);
 
 // Grouping Route Authentication
 router.post('/register', AuthController.register);
