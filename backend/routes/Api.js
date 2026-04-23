@@ -6,8 +6,10 @@ const AuthController = require("../controllers/AuthController");
 const ProductController = require("../controllers/ProductController");
 const CartController = require("../controllers/CartController");
 
+// Import Middleware
+const { isAdmin } = require("../middleware/authMiddleware");
+
 // --- ROUTES AUTH ---
-// Pastikan di AuthController.js fungsinya bukan 'static' atau panggil sesuai exportnya
 router.post("/register", AuthController.register);
 router.post("/login", AuthController.login);
 
@@ -15,12 +17,15 @@ router.post("/login", AuthController.login);
 router.get("/products", ProductController.index);
 router.get("/products/:id", ProductController.show);
 
+// Proteksi admin (biar ga sembarang orang bisa nambah produk)
+router.post("/products", isAdmin, ProductController.store);
+
 // --- ROUTES CART ---
-router.get("/cart", CartController.index);
+// router.get("/cart", CartController.index);
 router.post("/cart", CartController.store);
-router.delete("/cart/:id", CartController.destroy);
+// router.delete("/cart/:id", CartController.destroy);
 
 // --- ROUTE CHECKOUT ---
-router.post("/checkout", CartController.checkout);
+// router.post("/checkout", CartController.checkout);
 
 module.exports = router;

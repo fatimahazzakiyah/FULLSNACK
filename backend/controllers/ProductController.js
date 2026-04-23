@@ -17,5 +17,26 @@ class ProductController {
       res.status(200).json(results[0]);
     });
   }
+
+  async store(req, res) {
+    const { nama, harga, stok } = req.body;
+
+    const query = "INSERT INTO products (nama, harga, stok) VALUES (?, ?, ?)";
+
+    db.query(query, [nama, harga, stok], (err, result) => {
+      if (err) return res.status(500).json({ error: err.message });
+
+      res.status(201).json({
+        message: "Produk berhasil ditambahkan!",
+        data: {
+          id: result.insertId,
+          nama,
+          harga,
+          stok,
+        },
+      });
+    });
+  }
 }
+
 module.exports = new ProductController();
