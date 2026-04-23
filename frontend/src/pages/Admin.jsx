@@ -7,12 +7,7 @@ const api = axios.create({
 
 export default function Admin() {
   const [products, setProducts] = useState([]);
-  const [form, setForm] = useState({
-    nama: "",
-    harga: "",
-    stok: "",
-  });
-
+  const [form, setForm] = useState({ nama_produk: "", harga: "", stok: "" });
   // 🌸 STYLE
   const inputStyle = {
     margin: "5px",
@@ -86,14 +81,11 @@ export default function Admin() {
 
       {/* FORM TAMBAH */}
       <form onSubmit={handleSubmit}>
-        <input
-          style={inputStyle}
-          placeholder="Nama Produk"
-          value={form.nama}
-          onChange={(e) =>
-            setForm({ ...form, nama: e.target.value })
-          }
-        />
+        <input 
+  value={form.nama_produk} 
+  onChange={(e) => setForm({ ...form, nama_produk: e.target.value })} 
+  placeholder="Nama Produk"
+/>
 
         <input
           style={inputStyle}
@@ -141,7 +133,7 @@ export default function Admin() {
         <tbody>
           {products.map((p) => (
             <tr key={p.id_product}>
-              <td>{p.nama}</td>
+              <td>{p.nama_produk}</td>
               <td>Rp {p.harga}</td>
 
               {/* STOK EDIT */}
@@ -168,7 +160,7 @@ export default function Admin() {
 
                 <button
                   style={buttonDanger}
-                  onClick={() => handleDelete(p.id_product)}
+                  onClick={() => handleDelete(p.id)}
                 >
                   Hapus
                 </button>
