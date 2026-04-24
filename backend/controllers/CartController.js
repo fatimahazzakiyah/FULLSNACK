@@ -43,10 +43,19 @@ const CartController = {
   },
 
   checkout: (req, res) => {
-    db.query("DELETE FROM cart", (err) => {
-      res.json({ message: "Checkout Berhasil!" });
+    const { id_user, total_harga, alamat } = req.body;
+
+    const queryOrder = "INSERT INTO orders (id_user, total_harga, alamat, status) VALUES (?, ?, ?, ?)";
+    db.query(queryOrder, [id_user, total_harga, alamat, 'pending'], (err, result) => {
+      if (err) return res.status(500).json({ error: err.message });
+
+      // Kosongkan keranjang setelah order tercatat
+      db.query("DELETE FROM cart", (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.status(200).json({ message: "Checkout Berhasil! Data sudah masuk database. 🌸" });
+      });
     });
-  },
+  }
 };
 
 module.exports = CartController;
