@@ -144,7 +144,7 @@ const Cart = () => {
           </button>
         </>
       ) : (
-        <p>Keranjang kosong 😢</p>
+        <p>Keranjang kosong</p>
       )}
     </div>
   );
