@@ -14,7 +14,6 @@ const db = mysql.createConnection({
   user: "root",
   password: "",
   database: "db_fullsnack",
-  port: 3307 
 });
 
 db.connect((err) => {
@@ -62,6 +61,25 @@ app.put("/api/products/:id", (req, res) => {
   db.query("UPDATE products SET stok = ? WHERE id_product = ?", [stok, id], (err, result) => {
     if (err) return res.status(500).json(err);
     res.json({ message: "Stok berhasil diupdate" });
+  });
+});
+
+// --- ROUTE ORDERS (RIWAYAT) ---
+
+// GET: Ambil riwayat belanja berdasarkan ID User
+// Ini yang bakal dipanggil oleh file Riwayat.jsx kamu
+app.get("/api/orders/:userId", (req, res) => {
+  const userId = req.params.userId;
+  
+  // Pastikan nama tabel 'orders' dan kolom 'user_id' sudah ada di phpMyAdmin
+  const sql = "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC";
+  
+  db.query(sql, [userId], (err, result) => {
+    if (err) {
+      console.error("Gagal ambil riwayat:", err);
+      return res.status(500).json({ error: "Gagal mengambil data riwayat" });
+    }
+    res.json(result);
   });
 });
 
