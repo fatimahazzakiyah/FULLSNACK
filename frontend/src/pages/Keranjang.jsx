@@ -27,6 +27,9 @@ export default function Keranjang() {
     })
     .catch(err => alert("Gagal checkout, coba lagi ya!"));
 };
+import React from "react";
+
+export default function Keranjang() {
   return (
     <div style={{ padding: "50px", textAlign: "center" }}>
       <h2 style={{ color: "#ff69b4" }}>Keranjang Belanja Kamu 🛒</h2>
