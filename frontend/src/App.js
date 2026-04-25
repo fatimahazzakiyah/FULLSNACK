@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import Katalog from "./pages/Katalog";
 import Keranjang from "./pages/Keranjang";
+import Riwayat from './pages/Riwayat';
 
 function App() {
   const [user, setUser] = useState(null); 
@@ -54,12 +55,16 @@ function App() {
       </nav>
 
       <div style={{ padding: "20px" }}>
-        {user.role === "admin" ? (
-          <Admin /> 
-        ) : (
-          activePage === "katalog" ? <Katalog /> : <Keranjang />
-        )}
-      </div>
+      {user.role === "admin" ? (
+        <Admin /> 
+      ) : (
+        <>
+          {activePage === "katalog" && <Katalog />}
+          {activePage === "keranjang" && <Keranjang />}
+          {activePage === "riwayat" && <Riwayat user={user} />} 
+        </>
+      )}
+    </div>
     </div>
   );
 }

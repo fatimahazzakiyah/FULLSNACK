@@ -15,7 +15,7 @@ export default function Katalog() {
 
   // Fungsi Tambah ke Keranjang (Masukin ke dalam sini aja biar rapi)
   const addToCart = (product) => {
-    alert(`Berhasil memasukkan ${product.nama_produk} ke keranjang! 🛒`);
+    alert(`Berhasil memasukkan ${product.nama} ke keranjang! 🛒`);
     console.log("Data produk:", product);
   };
 
