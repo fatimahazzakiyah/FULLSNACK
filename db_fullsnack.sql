@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 18, 2026 at 05:54 PM
+-- Generation Time: Apr 27, 2026 at 01:43 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -44,9 +44,7 @@ INSERT INTO `cart` (`id_cart`, `id_user`, `status`, `created_at`, `product_id`) 
 (2, NULL, 'aktif', '2026-04-18 15:42:39', 1),
 (3, NULL, 'aktif', '2026-04-18 15:43:07', 2),
 (4, NULL, 'aktif', '2026-04-18 15:43:19', 1),
-(5, NULL, 'aktif', '2026-04-18 15:43:28', 1),
-(6, 1, 'aktif', '2026-04-18 15:47:33', 1),
-(7, 1, 'aktif', '2026-04-18 15:48:01', 1);
+(5, NULL, 'aktif', '2026-04-18 15:43:28', 1);
 
 -- --------------------------------------------------------
 
@@ -113,7 +111,8 @@ CREATE TABLE `products` (
 
 INSERT INTO `products` (`id_product`, `nama`, `deskripsi`, `harga`, `stok`, `kategori`, `image`, `created_at`) VALUES
 (1, 'Keripik Pisang', 'Snack pisang renyah', 15000, 50, 'Snack', NULL, '2026-04-17 02:16:23'),
-(2, 'Keripik Apel', 'Snack apel sehat', 20000, 30, 'Snack', NULL, '2026-04-17 02:16:23');
+(2, 'Keripik Apel', 'Snack apel sehat', 20000, 30, 'Snack', NULL, '2026-04-17 02:16:23'),
+(11, 'pisang slibaw', NULL, 20000, 10, NULL, '1777289905240-pisang.jpg', '2026-04-27 11:38:25');
 
 -- --------------------------------------------------------
 
@@ -123,7 +122,7 @@ INSERT INTO `products` (`id_product`, `nama`, `deskripsi`, `harga`, `stok`, `kat
 
 CREATE TABLE `users` (
   `id_user` int(11) NOT NULL,
-  `nama` varchar(100) NOT NULL,
+  `username` varchar(100) DEFAULT NULL,
   `email` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
   `role` enum('admin','user') DEFAULT 'user',
@@ -134,8 +133,10 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id_user`, `nama`, `email`, `password`, `role`, `created_at`) VALUES
-(1, 'Admin', 'admin@gmail.com', '123456', 'admin', '2026-04-17 02:15:09');
+INSERT INTO `users` (`id_user`, `username`, `email`, `password`, `role`, `created_at`) VALUES
+(1, 'revani', 'revani@gmail.com', '$2b$10$QcYtBrX0udLWsPj.Y6B1KORioTJ3yOTeB0I2xLDrSGm2m5RZp95pW', 'admin', '2026-04-23 07:27:07'),
+(3, 'aura', 'fitriaura@gmail.com', '$2b$10$779h1L8e.a8dCvyZvdJG9OSbJBwPbr/Zb3J5WiQm/wz3eXq3mX7AG', 'user', '2026-04-23 08:02:17'),
+(4, 'budi', 'budi@gmail.com', '$2b$10$i2Va8by1ivmeMNE3Zxt.xO3qens0cMyPMfTzS8BAVdLlwwFCqpIYa', 'user', '2026-04-27 10:19:43');
 
 --
 -- Indexes for dumped tables
@@ -192,7 +193,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id_cart` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_cart` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `cart_items`
@@ -216,13 +217,13 @@ ALTER TABLE `order_items`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id_product` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_product` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables

@@ -9,6 +9,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", apiRoutes);
 
+app.use("/uploads", express.static("uploads"));
+
 app.listen(3000, () => {
   console.log("Server FULLSNACK Running on http://localhost:3000 ✅");
 });

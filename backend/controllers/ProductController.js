@@ -12,37 +12,27 @@ class ProductController {
 
   // 2. POST tambah produk (HANYA SATU FUNGSI STORE)
   async store(req, res) {
-    // Pastikan mengambil nama_produk sesuai input dari frontend
-    const { nama_produk, harga, stok, deskripsi } = req.body;
+    const { nama_produk, harga, stok } = req.body;
+    const image = req.file ? req.file.filename : null;
 
     const query = `
-      INSERT INTO products (nama_produk, harga, stok, deskripsi, kategori)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO products (nama, harga, stok, image)
+      VALUES (?, ?, ?, ?)
     `;
 
-    db.query(
-      query,
-      [nama_produk, harga, stok, deskripsi || "-", "Snack"],
-      (err, result) => {
-        if (err) {
-          console.log("ERROR DB:", err); 
-          return res.status(500).json({
-            message: "Gagal menambahkan produk",
-            error: err,
-          });
-        }
-
-        res.status(201).json({
-          message: "Produk berhasil ditambahkan!",
-          data: {
-            id: result.insertId,
-            nama_produk,
-            harga,
-            stok,
-          },
+    db.query(query, [nama_produk, harga, stok, image], (err, result) => {
+      if (err) {
+        console.log("ERROR DB:", err);
+        return res.status(500).json({
+          message: "Gagal menambahkan produk",
+          error: err,
         });
       }
-    );
+
+      res.status(201).json({
+        message: "Produk berhasil ditambahkan!",
+      });
+    });
   }
 
   // 3. DELETE produk

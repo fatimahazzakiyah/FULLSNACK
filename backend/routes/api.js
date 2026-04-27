@@ -9,26 +9,35 @@ const CartController = require("../controllers/CartController");
 // Import Middleware
 const { isAdmin } = require("../middleware/authMiddleware");
 
+// MULTER CONFIG
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+const upload = multer({ storage });
+
 // --- ROUTES AUTH ---
 router.post("/register", AuthController.register);
 router.post("/login", AuthController.login);
 
 // --- ROUTES PRODUCTS ---
-//router.get("/products", ProductController.index);
-//router.get("/products/:id", ProductController.show);
+router.get("/products", ProductController.index);
 
-// Proteksi admin (biar ga sembarang orang bisa nambah produk)
-router.post("/products", ProductController.store);
+// FIXED UPLOAD ROUTE
+router.post("/products", upload.single("image"), ProductController.store);
 
 // --- ROUTES CART ---
-// router.get("/cart", CartController.index);
 router.post("/cart", CartController.store);
 
-// router.delete("/cart/:id", CartController.destroy);
+// --- DELETE & UPDATE
 router.delete("/products/:id", ProductController.destroy);
 router.put("/products/:id", ProductController.update);
-
-// --- ROUTE CHECKOUT ---
-// router.post("/checkout", CartController.checkout);
 
 module.exports = router;
