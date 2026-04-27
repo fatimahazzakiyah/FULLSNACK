@@ -1,88 +1,51 @@
 const express = require("express");
 const cors = require("cors");
-const mysql = require("mysql");
+const path = require("path");
+const db = require("./config/database"); // Koneksi dari file Aura
+const upload = require("./middleware/upload"); // Multer
+const fileValidation = require("./middleware/fileValidation"); // Validasi Aura
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // Biar bisa baca form-data
 
 const PORT = 5000;
 
-// KONEKSI DATABASE (Pakai Port 3307 sesuai XAMPP kamu)
-const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "db_fullsnack",
-});
+// Route untuk tambah produk (Disini Validasi Aura bekerja!)
+app.post("/api/products", upload.single("image"), fileValidation, (req, res) => {
+  const { nama, harga, stok } = req.body;
+  const image = req.file ? req.file.filename : null;
 
-db.connect((err) => {
-  if (err) {
-    console.error("Gagal konek database: " + err.stack);
-    return;
+  // Cek apakah data teks dikirim
+  if (!nama || !harga || !stok) {
+    return res.status(400).json({ message: "Semua kolom (nama, harga, stok) wajib diisi! ❌" });
   }
-  console.log("Database Connected! ✅");
-});
 
-app.post("/api/products", (req, res) => {
-  const { nama, harga, stok } = req.body; // Harus 'nama'
-  const sql = "INSERT INTO products (nama, harga, stok) VALUES (?, ?, ?)";
-  db.query(sql, [nama, harga, stok], (err, result) => {
-    if (err) res.status(500).send(err);
-    res.json({ message: "Produk berhasil ditambahkan" });
-  });
-});
-// ROUTE UTAMA (Biar pas dibuka di browser nggak error)
-app.get("/", (req, res) => {
-  res.send("<h1>Backend FullSnack Jalan! </h1><p>API Produk ada di: /api/products</p>");
-});
-
-// GET: Ambil data (Nama kolom disesuaikan: 'nama')
-app.get("/api/products", (req, res) => {
-  db.query("SELECT * FROM products", (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json(result);
-  });
-});
-
-// DELETE: Hapus (Sesuai id_product)
-app.delete("/api/products/:id", (req, res) => {
-  const id = req.params.id;
-  db.query("DELETE FROM products WHERE id_product = ?", [id], (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json({ message: "Produk berhasil dihapus" });
-  });
-});
-
-// UPDATE: Update stok
-app.put("/api/products/:id", (req, res) => {
-  const id = req.params.id;
-  const { stok } = req.body;
-  db.query("UPDATE products SET stok = ? WHERE id_product = ?", [stok, id], (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json({ message: "Stok berhasil diupdate" });
-  });
-});
-
-// --- ROUTE ORDERS (RIWAYAT) ---
-
-// GET: Ambil riwayat belanja berdasarkan ID User
-// Ini yang bakal dipanggil oleh file Riwayat.jsx kamu
-app.get("/api/orders/:userId", (req, res) => {
-  const userId = req.params.userId;
-  
-  // Pastikan nama tabel 'orders' dan kolom 'user_id' sudah ada di phpMyAdmin
-  const sql = "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC";
-  
-  db.query(sql, [userId], (err, result) => {
+  const query = "INSERT INTO products (nama, harga, stok, image) VALUES (?, ?, ?, ?)";
+  db.query(query, [nama, harga, stok, image], (err, result) => {
     if (err) {
-      console.error("Gagal ambil riwayat:", err);
-      return res.status(500).json({ error: "Gagal mengambil data riwayat" });
+      console.error(err);
+      return res.status(500).json({ message: "Gagal masuk database", error: err.message });
     }
-    res.json(result);
+    res.status(201).json({ 
+      message: "Produk berhasil ditambahkan! ✨", 
+      id: result.insertId 
+    });
   });
+});
+
+// Panggil Routes lain (seperti Auth)
+const apiRoutes = require("./routes/api");
+app.use("/api", apiRoutes);
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+app.get("/", (req, res) => {
+  res.send("<h1>Backend FullSnack Berhasil Jalan!</h1>");
 });
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Coba tes POST ke http://localhost:5000/api/products`);
 });
