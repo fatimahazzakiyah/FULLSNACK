@@ -1,16 +1,33 @@
+require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const multer = require("multer");
 const db = require("./config/database"); // Koneksi dari file Aura
-const upload = require("./middleware/upload"); // Multer
 const fileValidation = require("./middleware/fileValidation"); // Validasi Aura
+
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // Biar bisa baca form-data
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-const PORT = 5000;
+// --- KONFIGURASI MULTER (Tugas Tiya) ---
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/"); // Simpan ke folder uploads/
+  },
+  filename: function (req, file, cb) {
+    // Auto Rename: Prefix Date.now() agar tidak overwrite
+    const uniqueSuffix = Date.now() + "-" + file.originalname;
+    cb(null, uniqueSuffix);
+  }
+});
+const upload = multer({ storage: storage });
+
+
+//const PORT = 5000;
 
 // Route untuk tambah produk (Disini Validasi Aura bekerja!)
 app.post("/api/products", upload.single("image"), fileValidation, (req, res) => {
@@ -45,6 +62,7 @@ app.get("/", (req, res) => {
   res.send("<h1>Backend FullSnack Berhasil Jalan!</h1>");
 });
 
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
   console.log(`Coba tes POST ke http://localhost:5000/api/products`);
