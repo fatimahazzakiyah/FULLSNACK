@@ -12,7 +12,7 @@ class ProductController {
 
   // 2. POST tambah produk (HANYA SATU FUNGSI STORE)
   async store(req, res) {
-    const { nama_produk, harga, stok } = req.body;
+    const { nama, harga, stok } = req.body;
     const image = req.file ? req.file.filename : null;
 
     const query = `
@@ -20,7 +20,7 @@ class ProductController {
       VALUES (?, ?, ?, ?)
     `;
 
-    db.query(query, [nama_produk, harga, stok, image], (err, result) => {
+    db.query(query, [nama, harga, stok, image], (err, result) => {
       if (err) {
         console.log("ERROR DB:", err);
         return res.status(500).json({

@@ -8,20 +8,7 @@ const CartController = require("../controllers/CartController");
 
 // Import Middleware
 const { isAdmin } = require("../middleware/authMiddleware");
-
-// MULTER CONFIG
-const multer = require("multer");
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/");
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-
-const upload = multer({ storage });
+const upload = require("../middleware/upload");
 
 // --- ROUTES AUTH ---
 router.post("/register", AuthController.register);
@@ -31,7 +18,14 @@ router.post("/login", AuthController.login);
 router.get("/products", ProductController.index);
 
 // FIXED UPLOAD ROUTE
-router.post("/products", upload.single("image"), ProductController.store);
+router.post("/products", (req, res) => {
+  upload.single("photo")(req, res, function (err) {
+    if (err) {
+      return res.status(400).json({ status: "error", message: err.message });
+    }
+    ProductController.store(req, res);
+  });
+});
 
 // --- ROUTES CART ---
 router.post("/cart", CartController.store);
