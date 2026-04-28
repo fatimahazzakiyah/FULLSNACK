@@ -1,0 +1,6 @@
+.postman/
+postman/
+db_fullstack.sql
+Laporan_Fullsnack.pdf
+node_modules/
+.env

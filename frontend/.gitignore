@@ -19,6 +19,8 @@ backend/node_modules/
 /build
 
 uploads/
+.postman/
+postman/
 
 # misc
 .DS_Store
