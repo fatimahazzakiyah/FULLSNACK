@@ -7,28 +7,45 @@ export default function Katalog() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    api.get("/products")
+    api
+      .get("/products")
       .then((res) => setProducts(res.data))
       .catch((err) => console.log(err));
   }, []);
 
   const addToCart = (product) => {
-    alert(`Berhasil memasukkan ${product.nama} ke keranjang! 🛒`);
-    console.log("Data produk:", product);
-  };
+    console.log("Mencoba kirim data:", product); 
 
+    api
+      .post("/cart", {
+        id_product: product.id_product,
+        quantity: 1,
+      })
+      .then((res) => {
+        console.log("Respon Berhasil:", res.data);
+        alert(`Berhasil memasukkan ${product.nama} ke keranjang!`);
+      })
+      .catch((err) => {
+        console.error(
+          "Error API:",
+          err.response ? err.response.data : err.message,
+        );
+        alert("Gagal masuk keranjang, cek Console!");
+      });
+  };
   return (
     <div style={{ padding: "20px", textAlign: "center" }}>
       <h2 style={{ color: "#ff69b4" }}>Our Snack Collection 🌸</h2>
 
-      <div style={{
-        display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "center",
-        gap: "20px",
-        marginTop: "20px"
-      }}>
-        
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          gap: "20px",
+          marginTop: "20px",
+        }}
+      >
         {products.map((p) => (
           <div
             key={p.id_product}
@@ -38,10 +55,9 @@ export default function Katalog() {
               borderRadius: "20px",
               width: "250px",
               backgroundColor: "white",
-              boxShadow: "0 4px 8px rgba(0,0,0,0.05)"
+              boxShadow: "0 4px 8px rgba(0,0,0,0.05)",
             }}
           >
-
             {/* 🔥 IMAGE */}
             {p.image ? (
               <img
@@ -52,34 +68,32 @@ export default function Katalog() {
                   height: "150px",
                   objectFit: "cover",
                   borderRadius: "10px",
-                  marginBottom: "10px"
+                  marginBottom: "10px",
                 }}
               />
             ) : (
-              <div style={{
-                height: "150px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "#ffe4ec",
-                borderRadius: "10px",
-                marginBottom: "10px",
-                color: "#ff69b4",
-                fontSize: "12px"
-              }}>
+              <div
+                style={{
+                  height: "150px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "#ffe4ec",
+                  borderRadius: "10px",
+                  marginBottom: "10px",
+                  color: "#ff69b4",
+                  fontSize: "12px",
+                }}
+              >
                 No Image
               </div>
             )}
 
             <h3 style={{ color: "#ff69b4" }}>{p.nama}</h3>
 
-            <p style={{ color: "#ffb6c1", fontWeight: "bold" }}>
-              Rp {p.harga}
-            </p>
+            <p style={{ color: "#ffb6c1", fontWeight: "bold" }}>Rp {p.harga}</p>
 
-            <p style={{ fontSize: "12px" }}>
-              Tersedia: {p.stok}
-            </p>
+            <p style={{ fontSize: "12px" }}>Tersedia: {p.stok}</p>
 
             <button
               onClick={() => addToCart(p)}
@@ -90,15 +104,13 @@ export default function Katalog() {
                 padding: "10px 15px",
                 borderRadius: "10px",
                 cursor: "pointer",
-                width: "100%"
+                width: "100%",
               }}
             >
               Tambah Ke Keranjang
             </button>
-
           </div>
         ))}
-
       </div>
     </div>
   );
