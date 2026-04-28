@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
 
-// Import Controllers
+// --- IMPORT CONTROLLERS ---
 const AuthController = require("../controllers/AuthController");
 const ProductController = require("../controllers/ProductController");
 const CartController = require("../controllers/CartController");
 
-// Import Middleware
+// --- IMPORT MIDDLEWARE ---
 const { isAdmin } = require("../middleware/authMiddleware");
 const upload = require("../middleware/upload");
 
@@ -16,22 +16,14 @@ router.post("/login", AuthController.login);
 
 // --- ROUTES PRODUCTS ---
 router.get("/products", ProductController.index);
-
-// FIXED UPLOAD ROUTE
-router.post("/products", (req, res) => {
-  upload.single("photo")(req, res, function (err) {
-    if (err) {
-      return res.status(400).json({ status: "error", message: err.message });
-    }
-    ProductController.store(req, res);
-  });
-});
-
-// --- ROUTES CART ---
-router.post("/cart", CartController.store);
-
-// --- DELETE & UPDATE
+router.post("/products", upload.single("image"), ProductController.store);
 router.delete("/products/:id", ProductController.destroy);
 router.put("/products/:id", ProductController.update);
+
+// --- ROUTES CART (Ini yang tadi bikin 'Cannot GET') ---
+router.get("/cart", CartController.index);
+router.post("/cart", CartController.store);
+router.delete("/cart/:id", CartController.destroy);
+router.post("/cart/checkout", CartController.checkout);
 
 module.exports = router;

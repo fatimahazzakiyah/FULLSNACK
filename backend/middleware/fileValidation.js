@@ -1,5 +1,5 @@
 const validateFile = (req, res, next) => {
-    console.log("Satpam Aura: Sedang memeriksa file...");
+    console.log("Aura: Sedang memeriksa file...");
 
     if (!req.file) {
         return res.status(400).json({ message: "File gambar wajib diunggah!" });
