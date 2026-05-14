@@ -7,23 +7,28 @@ const ProductController = require("../controllers/ProductController");
 const CartController = require("../controllers/CartController");
 
 // --- IMPORT MIDDLEWARE ---
-const { isAdmin } = require("../middleware/authMiddleware");
+const { verifyToken, isAdmin, isUser } = require("../middleware/authMiddleware");
 const upload = require("../middleware/upload");
 
-// --- ROUTES AUTH ---
+// --- ROUTES AUTH (tidak perlu token) ---
 router.post("/register", AuthController.register);
 router.post("/login", AuthController.login);
 
 // --- ROUTES PRODUCTS ---
+// Semua orang bisa lihat produk
 router.get("/products", ProductController.index);
-router.post("/products", upload.single("image"), ProductController.store);
-router.delete("/products/:id", ProductController.destroy);
-router.put("/products/:id", ProductController.update);
 
-// --- ROUTES CART (Ini yang tadi bikin 'Cannot GET') ---
-router.get("/cart", CartController.index);
-router.post("/cart", CartController.store);
-router.delete("/cart/:id", CartController.destroy);
-router.post("/cart/checkout", CartController.checkout);
+// Hanya ADMIN: tambah, hapus, update produk
+// verifyToken → cek login dulu | isAdmin → cek role admin
+router.post("/products", verifyToken, isAdmin, upload.single("image"), ProductController.store);
+router.delete("/products/:id", verifyToken, isAdmin, ProductController.destroy);
+router.put("/products/:id", verifyToken, isAdmin, ProductController.update);
+
+// --- ROUTES CART ---
+// Hanya USER LOGIN yang bisa akses keranjang
+router.get("/cart", verifyToken, isUser, CartController.index);
+router.post("/cart", verifyToken, isUser, CartController.store);
+router.delete("/cart/:id", verifyToken, isUser, CartController.destroy);
+router.post("/cart/checkout", verifyToken, isUser, CartController.checkout);
 
 module.exports = router;
