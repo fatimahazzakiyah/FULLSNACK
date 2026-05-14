@@ -5,10 +5,11 @@ const { SECRET_KEY } = require("../middleware/authMiddleware");
 
 const AuthController = {
   // REGISTER
+  // mengubah username menjadi nama : sesuai dengan db
   register: async (req, res) => {
-    const { username, email, password } = req.body;
+    const { nama, email, password } = req.body;
 
-    if (!username || !email || !password) {
+    if (!nama || !email || !password) {
       return res.status(400).json({ message: "Semua kolom wajib diisi!" });
     }
 
@@ -22,11 +23,11 @@ const AuthController = {
 
       const hashedPassword = await bcrypt.hash(password, 10);
       const insertQuery =
-        "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
+        "INSERT INTO users (nama, email, password, role) VALUES (?, ?, ?, ?)";
 
       db.query(
         insertQuery,
-        [username, email, hashedPassword, "user"],
+        [nama, email, hashedPassword, "user"],
         (err, result) => {
           if (err) return res.status(500).json({ error: err.message });
 
@@ -69,7 +70,7 @@ const AuthController = {
       const token = jwt.sign(
         {
           id: user.id,
-          username: user.username,
+          nama: user.nama,
           email: user.email,
           role: user.role,
         },
@@ -78,11 +79,11 @@ const AuthController = {
       );
 
       res.status(200).json({
-        message: `Selamat datang kembali, ${user.username}!`,
+        message: `Selamat datang kembali, ${user.nama}!`,
         token: token, // ✅ token dikirim ke frontend
         user: {
           id: user.id,
-          username: user.username,
+          nama: user.nama,
           email: user.email,
           role: user.role,
         },

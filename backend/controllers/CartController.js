@@ -1,5 +1,6 @@
 const db = require("../config/database");
 
+// mengganti quantity menjadi jumlah seperti di db
 const CartController = {
   // 1. TAMPILKAN KERANJANG (Penyebab halaman kosong tadi)
   index: (req, res) => {
@@ -8,9 +9,12 @@ const CartController = {
                 cart.id_cart, 
                 products.nama, 
                 products.harga, 
-                cart.quantity 
+                cart_items.jumlah 
             FROM cart 
-            INNER JOIN products ON cart.product_id = products.id_product
+            INNER JOIN cart_items 
+              ON cart.id_cart = cart_items.id_cart
+            INNER JOIN products 
+              ON cart_items.id_product = products.id_product
         `;
     db.query(query, (err, results) => {
       if (err) {
@@ -23,7 +27,7 @@ const CartController = {
 
   // 2. SIMPAN KE KERANJANG
   store: (req, res) => {
-    const { id_product, quantity } = req.body;
+    const { id_product, jumlah } = req.body;
 
     // Cek produk dulu
     db.query(
@@ -41,20 +45,20 @@ const CartController = {
             if (err) return res.status(500).json({ error: err.message });
 
             if (cartItems.length > 0) {
-              // Update quantity
+              // Update jumlah
               db.query(
-                "UPDATE cart SET quantity = quantity + ? WHERE product_id = ?",
-                [quantity, id_product],
+                "UPDATE cart SET jumlah = jumlah + ? WHERE product_id = ?",
+                [jumlah, id_product],
                 (err) => {
                   if (err) return res.status(500).json({ error: err.message });
                   res.json({ message: "Jumlah snack bertambah! ✨" });
                 },
               );
             } else {
-              // Simpan baru (pakai product_id dan quantity sesuai struktur tabel)
+              // Simpan baru (pakai product_id dan jumlah sesuai struktur tabel)
               db.query(
-                "INSERT INTO cart (product_id, quantity) VALUES (?, ?)",
-                [id_product, quantity],
+                "INSERT INTO cart (product_id, jumlah) VALUES (?, ?)",
+                [id_product, jumlah],
                 (err) => {
                   if (err) return res.status(500).json({ error: err.message });
                   res.json({ message: "Berhasil masuk keranjang!" });
