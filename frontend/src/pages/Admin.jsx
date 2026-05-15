@@ -9,7 +9,7 @@ export default function Admin() {
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState({ nama_produk: "", harga: "", stok: "" });
   const [file, setFile] = useState(null);
-  const [fileName, setFileName] = useState(""); // ⭐ TAMBAHAN
+  const [fileName, setFileName] = useState(""); 
 
   // 🌸 STYLE (Pink Pastel Theme)
   const inputStyle = {
@@ -106,7 +106,7 @@ export default function Admin() {
   const handleUpdateStock = (id, stokBaru) => {
     api.put(`/products/${id}`, { stok: Number(stokBaru) })
       .then(() => {
-        alert("Stok diperbarui! ✅");
+        alert("Stok diperbarui!");
         fetchProducts();
       })
       .catch(() => alert("Gagal update stok!"));
@@ -114,7 +114,7 @@ export default function Admin() {
 
   return (
     <div style={{ padding: "30px", fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ color: "#ff69b4", textAlign: "center" }}>Admin Dashboard ⚙️</h1>
+      <h1 style={{ color: "#ff69b4", textAlign: "center" }}>Admin Dashboard</h1>
 
       {/* FORM */}
       <div style={{ backgroundColor: "#fff5f7", padding: "20px", borderRadius: "15px", marginBottom: "30px" }}>

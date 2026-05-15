@@ -4,91 +4,107 @@ const jwt = require("jsonwebtoken");
 const { SECRET_KEY } = require("../middleware/authMiddleware");
 
 const AuthController = {
-  // REGISTER
-  // mengubah username menjadi nama : sesuai dengan db
+  // --- REGISTER ---
   register: async (req, res) => {
-    const { nama, email, password } = req.body;
+    try {
+   
+      const { username, email, password } = req.body;
 
-    if (!nama || !email || !password) {
-      return res.status(400).json({ message: "Semua kolom wajib diisi!" });
-    }
+  
+      console.log("Data masuk:", req.body);
 
-    const checkQuery = "SELECT * FROM users WHERE email = ?";
-    db.query(checkQuery, [email], async (err, results) => {
-      if (err) return res.status(500).json({ error: err.message });
-
-      if (results.length > 0) {
-        return res.status(400).json({ message: "Email sudah terdaftar!" });
+      if (!username || !email || !password) {
+        return res.status(400).json({ message: "Semua kolom wajib diisi!" });
       }
 
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const insertQuery =
-        "INSERT INTO users (nama, email, password, role) VALUES (?, ?, ?, ?)";
+      const checkQuery = "SELECT * FROM users WHERE email = ?";
+      db.query(checkQuery, [email.trim()], async (err, results) => {
+        if (err)
+          return res.status(500).json({ error: "Gagal mengecek database" });
 
-      db.query(
-        insertQuery,
-        [nama, email, hashedPassword, "user"],
-        (err, result) => {
-          if (err) return res.status(500).json({ error: err.message });
-
-          res.status(201).json({
-            message: "Registrasi berhasil dan tersimpan di database!",
-            userId: result.insertId,
-          });
+        if (results.length > 0) {
+          return res.status(400).json({ message: "Email sudah terdaftar!" });
         }
-      );
-    });
-  },
 
-  // LOGIN — sekarang generate JWT token ✅
-  login: (req, res) => {
-    const { email, password } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const insertQuery =
+          "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
 
-    // VALIDASI INPUT KOSONG
-    if (!email || !password) {
-      return res.status(400).json({
-        message: "Email dan password wajib diisi!",
+        db.query(
+          insertQuery,
+          [username, email.trim(), hashedPassword, "user"],
+          (err, result) => {
+            if (err) {
+              console.error("Error saat simpan:", err);
+              return res.status(500).json({ error: err.message });
+            }
+
+            res.status(201).json({
+              message: "Registrasi berhasil! ✨",
+              userId: result.insertId,
+            });
+          },
+        );
       });
+    } catch (error) {
+      res.status(500).json({ message: "Internal Server Error" });
     }
+  },
+  // --- LOGIN ---
+  login: async (req, res) => {
+    try {
+      const { email, password } = req.body;
 
-    const query = "SELECT * FROM users WHERE email = ?";
-    db.query(query, [email], async (err, results) => {
-      if (err) return res.status(500).json({ error: err.message });
-
-      if (results.length === 0) {
-        return res.status(401).json({ message: "Email atau Password salah!" });
+      if (!email || !password) {
+        return res
+          .status(400)
+          .json({ message: "Email dan password wajib diisi!" });
       }
 
-      const user = results[0];
-      const isMatch = await bcrypt.compare(password, user.password);
+      const query = "SELECT * FROM users WHERE email = ?";
+      db.query(query, [email.trim()], async (err, results) => {
+        if (err) return res.status(500).json({ error: "Database error" });
 
-      if (!isMatch) {
-        return res.status(401).json({ message: "Email atau Password salah!" });
-      }
+        if (results.length === 0) {
+          return res
+            .status(401)
+            .json({ message: "Email atau Password salah! ❌" });
+        }
 
-      // ✅ BUAT TOKEN JWT
-      const token = jwt.sign(
-        {
-          id: user.id,
-          nama: user.nama,
-          email: user.email,
-          role: user.role,
-        },
-        SECRET_KEY,
-        { expiresIn: "8h" }
-      );
+        const user = results[0];
+        const isMatch = await bcrypt.compare(password, user.password);
 
-      res.status(200).json({
-        message: `Selamat datang kembali, ${user.nama}!`,
-        token: token, // ✅ token dikirim ke frontend
-        user: {
-          id: user.id,
-          nama: user.nama,
-          email: user.email,
-          role: user.role,
-        },
+        if (!isMatch) {
+          return res
+            .status(401)
+            .json({ message: "Email atau Password salah! ❌" });
+        }
+
+        const token = jwt.sign(
+          {
+            id: user.id_user, // Sesuai kolom di image_2602e0.png
+            username: user.username,
+            email: user.email,
+            role: user.role,
+          },
+          SECRET_KEY,
+          { expiresIn: "8h" },
+        );
+
+        res.status(200).json({
+          message: `Selamat datang kembali, ${user.username}! 🌸`,
+          token: token,
+          user: {
+            id: user.id_user,
+            username: user.username,
+            email: user.email,
+            role: user.role,
+          },
+        });
       });
-    });
+    } catch (error) {
+      res.status(500).json({ message: "Terjadi kesalahan sistem." });
+    }
   },
 };
 
