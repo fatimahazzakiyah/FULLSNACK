@@ -6,6 +6,7 @@ import Admin from "./pages/Admin";
 import Katalog from "./pages/Katalog";
 import Keranjang from "./pages/Keranjang";
 import Riwayat from './pages/Riwayat';
+import Footer from './components/Footer';
 
 function App() {
   const [user, setUser] = useState(null); 
@@ -65,6 +66,7 @@ function App() {
         </>
       )}
     </div>
+    <Footer />
     </div>
   );
 }
