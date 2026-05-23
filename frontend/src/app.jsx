@@ -37,9 +37,24 @@ function App() {
     fetchProducts();
   }, []);
 
-  const handleAddProduct = (newProduct) => {
-    setProducts([...products, newProduct]);
-  };
+  const handleAddProduct = async (newProduct) => {
+  try {
+    // Kirim data snack baru ke backend API
+    await axios.post(
+      "http://localhost:3000/api/products",
+      newProduct
+    );
+
+    // Refresh data produk otomatis
+    fetchProducts();
+
+    alert("Nyam! Snack baru berhasil tersimpan ke database MySQL! 🍿✨");
+  } catch (error) {
+    console.error("Gagal menyimpan snack baru:", error);
+
+    alert("Gagal menambahkan snack. Cek koneksi API!");
+  }
+};
 
   return (
     <div
