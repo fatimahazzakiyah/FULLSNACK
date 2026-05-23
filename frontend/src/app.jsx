@@ -8,13 +8,28 @@ import Footer from "./components/Footer";
 function App() {
   const [products, setProducts] = useState([]);
 
+  // State Loading & Error
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch Products API
   const fetchProducts = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/products");
+      setIsLoading(true);
+      setIsError(false);
+
+      const response = await axios.get(
+        "http://localhost:3000/api/products"
+      );
 
       setProducts(response.data);
+
+      setIsLoading(false);
     } catch (error) {
-      console.error("Gagal memuat data produk dari backend:", error);
+      console.error("Gagal memuat data produk:", error);
+
+      setIsError(true);
+      setIsLoading(false);
     }
   };
 
@@ -54,15 +69,43 @@ function App() {
             marginBottom: "2rem",
           }}
         >
-          {" "}
           FULLSNACK DASHBOARD (LIVE API)
         </h2>
 
         {/* Form Tambah Produk */}
-        <AddProductForm onAddProduct={handleAddProduct} />
+        {/* Form Tambah Produk */}
+<AddProductForm onAddProduct={handleAddProduct} />
 
-        {/* List Tampilan Produk yang datanya sudah diambil dari database oleh */}
-        <Products productsList={products} />
+        {/* Kondisi Loading */}
+        {isLoading && (
+          <p
+            style={{
+              textAlign: "center",
+              color: "#ff69b4",
+              fontWeight: "bold",
+            }}
+          >
+            Sedang memuat produk snack...
+          </p>
+        )}
+
+        {/* Kondisi Error */}
+        {isError && (
+          <p
+            style={{
+              textAlign: "center",
+              color: "#e74c3c",
+              fontWeight: "bold",
+            }}
+          >
+            Gagal memuat data. Pastikan Server Backend sudah dinyalakan!
+          </p>
+        )}
+
+        {/* Produk hanya tampil kalau tidak loading */}
+        {!isLoading && !isError && (
+          <Products productsList={products} />
+        )}
       </main>
 
       <Footer />

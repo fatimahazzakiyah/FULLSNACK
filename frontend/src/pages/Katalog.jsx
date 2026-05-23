@@ -6,15 +6,36 @@ const api = axios.create({ baseURL: "http://localhost:3000/api" });
 export default function Katalog() {
   const [products, setProducts] = useState([]);
 
+  // LOADING & ERROR STATE
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+
+  // FETCH PRODUCTS
+  const fetchProducts = async () => {
+    try {
+      setIsLoading(true);
+      setIsError(false);
+
+      const response = await api.get("/products");
+
+      setProducts(response.data);
+
+      setIsLoading(false);
+    } catch (err) {
+      console.log(err);
+
+      setIsError(true);
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    api
-      .get("/products")
-      .then((res) => setProducts(res.data))
-      .catch((err) => console.log(err));
+    fetchProducts();
   }, []);
 
+  // ADD TO CART
   const addToCart = (product) => {
-    console.log("Mencoba kirim data:", product); 
+    console.log("Mencoba kirim data:", product);
 
     api
       .post("/cart", {
@@ -23,95 +44,140 @@ export default function Katalog() {
       })
       .then((res) => {
         console.log("Respon Berhasil:", res.data);
+
         alert(`Berhasil memasukkan ${product.nama} ke keranjang!`);
       })
       .catch((err) => {
         console.error(
           "Error API:",
-          err.response ? err.response.data : err.message,
+          err.response ? err.response.data : err.message
         );
+
         alert("Gagal masuk keranjang, cek Console!");
       });
   };
+
   return (
     <div style={{ padding: "20px", textAlign: "center" }}>
-      <h2 style={{ color: "#ff69b4" }}>Our Snack Collection 🌸</h2>
+      <h2 style={{ color: "#ff69b4" }}>
+        Our Snack Collection 
+      </h2>
 
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          gap: "20px",
-          marginTop: "20px",
-        }}
-      >
-        {products.map((p) => (
-          <div
-            key={p.id_product}
-            style={{
-              border: "2px solid #ffe4ec",
-              padding: "20px",
-              borderRadius: "20px",
-              width: "250px",
-              backgroundColor: "white",
-              boxShadow: "0 4px 8px rgba(0,0,0,0.05)",
-            }}
-          >
-            {/* 🔥 IMAGE */}
-            {p.image ? (
-              <img
-                src={`http://localhost:3000/uploads/${p.image}`}
-                alt={p.nama}
-                style={{
-                  width: "100%",
-                  height: "150px",
-                  objectFit: "cover",
-                  borderRadius: "10px",
-                  marginBottom: "10px",
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  height: "150px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "#ffe4ec",
-                  borderRadius: "10px",
-                  marginBottom: "10px",
-                  color: "#ff69b4",
-                  fontSize: "12px",
-                }}
-              >
-                No Image
-              </div>
-            )}
+      {/* LOADING */}
+      {isLoading && (
+        <p
+          style={{
+            color: "#ff69b4",
+            fontWeight: "bold",
+            marginTop: "20px",
+          }}
+        >
+          Sedang memuat produk snack...
+        </p>
+      )}
 
-            <h3 style={{ color: "#ff69b4" }}>{p.nama}</h3>
+      {/* ERROR */}
+      {isError && (
+        <p
+          style={{
+            color: "#e74c3c",
+            fontWeight: "bold",
+            marginTop: "20px",
+          }}
+        >
+          Terjadi kesalahan, Gagal memuat data!
+        </p>
+      )}
 
-            <p style={{ color: "#ffb6c1", fontWeight: "bold" }}>Rp {p.harga}</p>
-
-            <p style={{ fontSize: "12px" }}>Tersedia: {p.stok}</p>
-
-            <button
-              onClick={() => addToCart(p)}
+      {/* PRODUK */}
+      {!isLoading && !isError && (
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            gap: "20px",
+            marginTop: "20px",
+          }}
+        >
+          {products.map((p) => (
+            <div
+              key={p.id_product}
               style={{
-                backgroundColor: "#ffb6c1",
-                color: "white",
-                border: "none",
-                padding: "10px 15px",
-                borderRadius: "10px",
-                cursor: "pointer",
-                width: "100%",
+                border: "2px solid #ffe4ec",
+                padding: "20px",
+                borderRadius: "20px",
+                width: "250px",
+                backgroundColor: "white",
+                boxShadow: "0 4px 8px rgba(0,0,0,0.05)",
               }}
             >
-              Tambah Ke Keranjang
-            </button>
-          </div>
-        ))}
-      </div>
+              {/* IMAGE */}
+              {p.image ? (
+                <img
+                  src={`http://localhost:3000/uploads/${p.image}`}
+                  alt={p.nama}
+                  style={{
+                    width: "100%",
+                    height: "150px",
+                    objectFit: "cover",
+                    borderRadius: "10px",
+                    marginBottom: "10px",
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    height: "150px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: "#ffe4ec",
+                    borderRadius: "10px",
+                    marginBottom: "10px",
+                    color: "#ff69b4",
+                    fontSize: "12px",
+                  }}
+                >
+                  No Image
+                </div>
+              )}
+
+              <h3 style={{ color: "#ff69b4" }}>
+                {p.nama}
+              </h3>
+
+              <p
+                style={{
+                  color: "#ffb6c1",
+                  fontWeight: "bold",
+                }}
+              >
+                Rp {p.harga}
+              </p>
+
+              <p style={{ fontSize: "12px" }}>
+                Tersedia: {p.stok}
+              </p>
+
+              <button
+                onClick={() => addToCart(p)}
+                style={{
+                  backgroundColor: "#ffb6c1",
+                  color: "white",
+                  border: "none",
+                  padding: "10px 15px",
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  width: "100%",
+                }}
+              >
+                Tambah Ke Keranjang
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
