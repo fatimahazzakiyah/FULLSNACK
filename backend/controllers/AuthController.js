@@ -40,7 +40,7 @@ const AuthController = {
             }
 
             res.status(201).json({
-              message: "Registrasi berhasil! ✨",
+              message: "Registrasi berhasil!",
               userId: result.insertId,
             });
           },

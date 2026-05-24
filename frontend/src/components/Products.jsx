@@ -1,14 +1,15 @@
 import React from 'react';
-import ProductCard from './ProductCard'; // Komponen satuan milik Maulidya
+import ProductCard from './ProductCard'; // Sekarang aman karena filenya udah lo bikin!
 
-const Products = ({ productsList }) => {
+// 🌟 DI SINI: Tambahin props onDeleteProduct yang dikirim dari App.jsx
+const Products = ({ productsList, onDeleteProduct }) => {
   return (
     <div>
       <h2 style={{ marginBottom: '1rem', color: '#333' }}>🍪 Katalog Menu Toko FULLSNACK</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
         {productsList.map((product, index) => (
-          // Melakukan looping (.map) dan melempar data ke ProductCard milik Maulidya
-          <ProductCard key={index} product={product} />
+          // 🌟 DI SINI: Tambahin onDelete={onDeleteProduct} biar tombol di ProductCard bisa jalan!
+          <ProductCard key={index} product={product} onDelete={onDeleteProduct} />
         ))}
       </div>
     </div>
