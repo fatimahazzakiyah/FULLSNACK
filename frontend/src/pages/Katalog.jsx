@@ -3,7 +3,7 @@ import axios from "axios";
 
 const api = axios.create({ baseURL: "http://localhost:3000/api" });
 
-export default function Katalog() {
+export default function Katalog({ onDeleteProduct }) {
   const [products, setProducts] = useState([]);
 
   // LOADING & ERROR STATE
@@ -104,6 +104,38 @@ export default function Katalog() {
             <div
               key={p.id_product}
               style={{
+feature-fe-productlist
+                backgroundColor: "#ffb6c1",
+                color: "white",
+                border: "none",
+                padding: "10px 15px",
+                borderRadius: "10px",
+                cursor: "pointer",
+                width: "100%",
+                marginBottom: "10px", 
+              }}
+            >
+              Tambah Ke Keranjang
+            </button>
+
+            <button
+              onClick={() => onDeleteProduct(p.id_product)}
+              style={{
+                backgroundColor: "#e74c3c",
+                color: "white",
+                border: "none",
+                padding: "10px 15px",
+                borderRadius: "10px",
+                cursor: "pointer",
+                width: "100%",
+              }}
+            >
+              🗑️ Hapus Snack
+            </button>
+          </div>
+        ))}
+      </div>
+
                 border: "2px solid #ffe4ec",
                 padding: "20px",
                 borderRadius: "20px",
@@ -178,6 +210,7 @@ export default function Katalog() {
           ))}
         </div>
       )}
+ main
     </div>
   );
 }
