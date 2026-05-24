@@ -3,7 +3,7 @@ import axios from "axios";
 
 const api = axios.create({ baseURL: "http://localhost:3000/api" });
 
-export default function Katalog() {
+export default function Katalog({ onDeleteProduct }) {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -105,9 +105,25 @@ export default function Katalog() {
                 borderRadius: "10px",
                 cursor: "pointer",
                 width: "100%",
+                marginBottom: "10px", 
               }}
             >
               Tambah Ke Keranjang
+            </button>
+
+            <button
+              onClick={() => onDeleteProduct(p.id_product)}
+              style={{
+                backgroundColor: "#e74c3c",
+                color: "white",
+                border: "none",
+                padding: "10px 15px",
+                borderRadius: "10px",
+                cursor: "pointer",
+                width: "100%",
+              }}
+            >
+              🗑️ Hapus Snack
             </button>
           </div>
         ))}

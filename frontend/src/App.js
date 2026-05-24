@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./App.css";
-
+import Products from "./components/Products";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import Katalog from "./pages/Katalog";
@@ -11,6 +12,32 @@ import Footer from './components/Footer';
 function App() {
   const [user, setUser] = useState(null); 
   const [activePage, setActivePage] = useState("katalog"); 
+  const [products, setProducts] = useState([]);
+
+  // Fungsi untuk ambil data produk dari backend
+  const fetchProducts = () => {
+    axios.get("http://localhost:3000/api/products")
+      .then((res) => setProducts(res.data))
+      .catch((err) => console.log(err));
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const handleDeleteProduct = async (id) => {
+    if (window.confirm("Apakah kamu yakin ingin menghapus snack manis ini? 🥺")) {
+      try {
+        // Mengirim request DELETE ke backend berdasarkan ID produk
+        await axios.delete(`http://localhost:3000/api/products/${id}`);
+        alert("Snack berhasil dihapus dari database! ✨");
+        fetchProducts(); // Refresh list produk
+      } catch (error) {
+        console.error("Gagal menghapus produk:", error);
+        alert("Gagal menghapus produk dari database.");
+      }
+    }
+  };
 
   if (!user) {
     return <Login onLogin={(data) => setUser(data)} />;
@@ -59,12 +86,14 @@ function App() {
       {user.role === "admin" ? (
         <Admin /> 
       ) : (
-        <>
-          {activePage === "katalog" && <Katalog />}
-          {activePage === "keranjang" && <Keranjang />}
-          {activePage === "riwayat" && <Riwayat user={user} />} 
-        </>
-      )}
+          <>
+            {activePage === "katalog" && (
+              <Products productsList={products} onDeleteProduct={handleDeleteProduct} />
+            )}
+            {activePage === "keranjang" && <Keranjang />}
+            {activePage === "riwayat" && <Riwayat user={user} />} 
+          </>
+        )}
     </div>
     <Footer />
     </div>
