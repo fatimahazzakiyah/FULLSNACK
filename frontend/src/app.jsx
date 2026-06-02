@@ -1,9 +1,54 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+// 1. Import Routes dan Route untuk mengatur perpindahan halaman
+import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import AddProductForm from "./components/AddProductForm";
 import Products from "./components/Products";
 import Footer from "./components/Footer";
+
+// --- HALAMAN UTAMA / DASHBOARD TOKO (Menggunakan komponen asli kamu) ---
+const DashboardPage = ({ products, handleAddProduct }) => {
+  return (
+    <main
+      style={{
+        flex: 1,
+        maxWidth: "800px",
+        width: "100%",
+        margin: "2rem auto",
+        padding: "0 1rem",
+      }}
+    >
+      <h2
+        style={{
+          textAlign: "center",
+          color: "#ff69b4",
+          marginBottom: "2rem",
+        }}
+      >
+        FULLSNACK DASHBOARD (LIVE API)
+      </h2>
+
+      {/* Form Tambah Produk */}
+      <AddProductForm onAddProduct={handleAddProduct} />
+
+      {/* List Tampilan Produk */}
+      <Products productsList={products} />
+    </main>
+  );
+};
+
+// --- PLACEHOLDER HALAMAN SEMENTARA UNTUK ANGGOTA LAIN ---
+const LoginPlaceholder = () => (
+  <div style={{ padding: "3rem", textAlign: "center", fontWeight: "bold" }}>
+    🔑 Halaman Login (Tugas Aura)
+  </div>
+);
+const RegisterPlaceholder = () => (
+  <div style={{ padding: "3rem", textAlign: "center", fontWeight: "bold" }}>
+    📝 Halaman Register (Tugas Tiya)
+  </div>
+);
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -22,6 +67,7 @@ function App() {
         "http://localhost:3000/api/products"
       );
 
+      const response = await axios.get("http://localhost:3000/api/products");
       setProducts(response.data);
 
       setIsLoading(false);
@@ -66,62 +112,25 @@ function App() {
         fontFamily: "sans-serif",
       }}
     >
+      {/* Layout Global (Navbar & Footer selalu muncul di setiap rute) */}
       <Navbar />
 
-      <main
-        style={{
-          flex: 1,
-          maxWidth: "800px",
-          width: "100%",
-          margin: "2rem auto",
-          padding: "0 1rem",
-        }}
-      >
-        <h2
-          style={{
-            textAlign: "center",
-            color: "#ff69b4",
-            marginBottom: "2rem",
-          }}
-        >
-          FULLSNACK DASHBOARD (LIVE API)
-        </h2>
-
-        {/* Form Tambah Produk */}
-        {/* Form Tambah Produk */}
-<AddProductForm onAddProduct={handleAddProduct} />
-
-        {/* Kondisi Loading */}
-        {isLoading && (
-          <p
-            style={{
-              textAlign: "center",
-              color: "#ff69b4",
-              fontWeight: "bold",
-            }}
-          >
-            Sedang memuat produk snack...
-          </p>
-        )}
-
-        {/* Kondisi Error */}
-        {isError && (
-          <p
-            style={{
-              textAlign: "center",
-              color: "#e74c3c",
-              fontWeight: "bold",
-            }}
-          >
-            Gagal memuat data. Pastikan Server Backend sudah dinyalakan!
-          </p>
-        )}
-
-        {/* Produk hanya tampil kalau tidak loading */}
-        {!isLoading && !isError && (
-          <Products productsList={products} />
-        )}
-      </main>
+      {/* 2. Sistem Navigasi Antar Halaman */}
+      <Routes>
+        {/* Jalur ke halaman utama dashboard */}
+        <Route
+          path="/"
+          element={
+            <DashboardPage
+              products={products}
+              handleAddProduct={handleAddProduct}
+            />
+          }
+        />
+        {/* Jalur ke halaman login & register */}
+        <Route path="/login" element={<LoginPlaceholder />} />
+        <Route path="/register" element={<RegisterPlaceholder />} />
+      </Routes>
 
       <Footer />
     </div>
