@@ -7,7 +7,7 @@ import Admin from "./pages/Admin";
 import Katalog from "./pages/Katalog";
 import Keranjang from "./pages/Keranjang";
 import Riwayat from "./pages/Riwayat";
-import Footer from "./components/Footer";
+import Layout from "./components/Layout";
 
 function App() {
   // Ambil data user dari localStorage saat aplikasi pertama kali dibuka
@@ -35,10 +35,10 @@ function App() {
     setActivePage("katalog");
   };
 
-  // Tombol hapus buatan Tiya, dirapikan kembali saat proses final merge
+  // Tombol hapus produk
   const handleDeleteProduct = async (idProduct) => {
     const isConfirmed = window.confirm(
-      "Apakah kamu yakin ingin menghapus snack manis ini? 🥺"
+      "Apakah kamu yakin ingin menghapus produk ini?"
     );
 
     if (!isConfirmed) return;
@@ -48,9 +48,9 @@ function App() {
         `http://localhost:3000/api/products/${idProduct}`
       );
 
-      alert("Snack berhasil dihapus dari database! ✨");
+      alert("Produk berhasil dihapus!");
 
-      // Disesuaikan Maulidya agar katalog mengambil ulang data terbaru
+      // Refresh katalog
       setCatalogRefreshKey((previousKey) => previousKey + 1);
     } catch (error) {
       console.error("Gagal menghapus produk:", error);
@@ -159,7 +159,7 @@ function App() {
         </div>
       </nav>
 
-      <main style={{ padding: "20px" }}>
+      <Layout>
         {user.role === "admin" ? (
           <Admin />
         ) : (
@@ -173,12 +173,12 @@ function App() {
 
             {activePage === "keranjang" && <Keranjang />}
 
-            {activePage === "riwayat" && <Riwayat user={user} />}
+            {activePage === "riwayat" && (
+              <Riwayat user={user} />
+            )}
           </>
         )}
-      </main>
-
-      <Footer />
+      </Layout>
     </div>
   );
 }
