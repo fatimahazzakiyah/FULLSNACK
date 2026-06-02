@@ -53,12 +53,29 @@ const RegisterPlaceholder = () => (
 function App() {
   const [products, setProducts] = useState([]);
 
+  // State Loading & Error
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+
+  // Fetch Products API
   const fetchProducts = async () => {
     try {
+      setIsLoading(true);
+      setIsError(false);
+
+      const response = await axios.get(
+        "http://localhost:3000/api/products"
+      );
+
       const response = await axios.get("http://localhost:3000/api/products");
       setProducts(response.data);
+
+      setIsLoading(false);
     } catch (error) {
-      console.error("Gagal memuat data produk dari backend:", error);
+      console.error("Gagal memuat data produk:", error);
+
+      setIsError(true);
+      setIsLoading(false);
     }
   };
 
@@ -66,9 +83,24 @@ function App() {
     fetchProducts();
   }, []);
 
-  const handleAddProduct = (newProduct) => {
-    setProducts([...products, newProduct]);
-  };
+  const handleAddProduct = async (newProduct) => {
+  try {
+    // Kirim data snack baru ke backend API
+    await axios.post(
+      "http://localhost:3000/api/products",
+      newProduct
+    );
+
+    // Refresh data produk otomatis
+    fetchProducts();
+
+    alert("Nyam! Snack baru berhasil tersimpan ke database MySQL! 🍿✨");
+  } catch (error) {
+    console.error("Gagal menyimpan snack baru:", error);
+
+    alert("Gagal menambahkan snack. Cek koneksi API!");
+  }
+};
 
   return (
     <div

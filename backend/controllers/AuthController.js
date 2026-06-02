@@ -8,12 +8,12 @@ const AuthController = {
   register: async (req, res) => {
     try {
    
-      const { username, email, password } = req.body;
+      const { nama, email, password } = req.body;
 
   
       console.log("Data masuk:", req.body);
 
-      if (!username || !email || !password) {
+      if (!nama || !email || !password) {
         return res.status(400).json({ message: "Semua kolom wajib diisi!" });
       }
 
@@ -28,11 +28,11 @@ const AuthController = {
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const insertQuery =
-          "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
+          "INSERT INTO users (nama, email, password, role) VALUES (?, ?, ?, ?)";
 
         db.query(
           insertQuery,
-          [username, email.trim(), hashedPassword, "user"],
+          [nama, email.trim(), hashedPassword, "user"],
           (err, result) => {
             if (err) {
               console.error("Error saat simpan:", err);
@@ -83,7 +83,7 @@ const AuthController = {
         const token = jwt.sign(
           {
             id: user.id_user, // Sesuai kolom di image_2602e0.png
-            username: user.username,
+            nama: user.nama,
             email: user.email,
             role: user.role,
           },
@@ -92,11 +92,11 @@ const AuthController = {
         );
 
         res.status(200).json({
-          message: `Selamat datang kembali, ${user.username}! 🌸`,
+          message: `Selamat datang kembali, ${user.nama}! 🌸`,
           token: token,
           user: {
             id: user.id_user,
-            username: user.username,
+            nama: user.nama,
             email: user.email,
             role: user.role,
           },
