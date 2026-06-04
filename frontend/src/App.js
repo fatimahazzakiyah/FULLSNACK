@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import "./App.css";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Admin from "./pages/Admin";
 import Katalog from "./pages/Katalog";
 import Keranjang from "./pages/Keranjang";
@@ -15,8 +17,6 @@ function App() {
     const savedUser = localStorage.getItem("user");
     return savedUser ? JSON.parse(savedUser) : null;
   });
-
-  const [activePage, setActivePage] = useState("katalog");
 
   // Dipakai untuk memuat ulang katalog setelah produk berhasil dihapus
   const [catalogRefreshKey, setCatalogRefreshKey] = useState(0);
@@ -32,7 +32,6 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem("user");
     setUser(null);
-    setActivePage("katalog");
   };
 
   // Tombol hapus produk
@@ -44,13 +43,11 @@ function App() {
     if (!isConfirmed) return;
 
     try {
-      await axios.delete(
-        `http://localhost:3000/api/products/${idProduct}`
-      );
+      await axios.delete(`http://localhost:3000/api/products/${idProduct}`);
 
       alert("Produk berhasil dihapus!");
 
-      // Refresh katalog
+      // Refresh katalog setelah produk dihapus
       setCatalogRefreshKey((previousKey) => previousKey + 1);
     } catch (error) {
       console.error("Gagal menghapus produk:", error);
@@ -58,129 +55,78 @@ function App() {
     }
   };
 
-  if (!user) {
-    return <Login onLogin={(data) => setUser(data)} />;
-  }
-
   return (
-    <div>
-      <nav
-        style={{
-          background: "#ffe4ec",
-          padding: "15px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <b style={{ color: "#ff69b4", fontSize: "20px" }}>
-          FullSnack 🍿
-        </b>
+  <Routes>
+    <Route
+      path="/login"
+      element={<Login onLogin={(data) => setUser(data)} />}
+    />
 
-        <div>
-          {user.role === "user" ? (
-            <>
-              <span
-                onClick={() => setActivePage("katalog")}
-                style={{
-                  marginRight: "15px",
-                  cursor: "pointer",
-                  color: "#ff69b4",
-                  fontWeight:
-                    activePage === "katalog" ? "bold" : "normal",
-                  borderBottom:
-                    activePage === "katalog"
-                      ? "2px solid #ff69b4"
-                      : "none",
-                }}
-              >
-                Katalog
-              </span>
+    <Route path="/register" element={<Register />} />
 
-              <span
-                onClick={() => setActivePage("keranjang")}
-                style={{
-                  marginRight: "15px",
-                  cursor: "pointer",
-                  color: "#ff69b4",
-                  fontWeight:
-                    activePage === "keranjang" ? "bold" : "normal",
-                  borderBottom:
-                    activePage === "keranjang"
-                      ? "2px solid #ff69b4"
-                      : "none",
-                }}
-              >
-                Keranjang 🛒
-              </span>
-
-              <span
-                onClick={() => setActivePage("riwayat")}
-                style={{
-                  marginRight: "15px",
-                  cursor: "pointer",
-                  color: "#ff69b4",
-                  fontWeight:
-                    activePage === "riwayat" ? "bold" : "normal",
-                  borderBottom:
-                    activePage === "riwayat"
-                      ? "2px solid #ff69b4"
-                      : "none",
-                }}
-              >
-                Riwayat 📋
-              </span>
-            </>
-          ) : (
-            <span
-              style={{
-                marginRight: "15px",
-                fontWeight: "bold",
-                color: "#ff69b4",
-              }}
-            >
-              Dashboard Admin ⚙️
-            </span>
-          )}
-
-          <button
-            onClick={handleLogout}
-            style={{
-              cursor: "pointer",
-              border: "none",
-              borderRadius: "8px",
-              padding: "8px 12px",
-              backgroundColor: "#ff69b4",
-              color: "white",
-            }}
-          >
-            Keluar
-          </button>
-        </div>
-      </nav>
-
-      <Layout>
-        {user.role === "admin" ? (
-          <Admin />
-        ) : (
-          <>
-            {activePage === "katalog" && (
+    <Route
+      path="/"
+      element={
+        user ? (
+          <Layout user={user} onLogout={handleLogout}>
+            {user.role === "admin" ? (
+              <Admin />
+            ) : (
               <Katalog
                 key={catalogRefreshKey}
                 onDeleteProduct={handleDeleteProduct}
               />
             )}
+          </Layout>
+        ) : (
+          <Navigate to="/login" />
+        )
+      }
+    />
 
-            {activePage === "keranjang" && <Keranjang />}
+    <Route
+      path="/katalog"
+      element={
+        user ? (
+          <Layout user={user} onLogout={handleLogout}>
+            <Katalog
+              key={catalogRefreshKey}
+              onDeleteProduct={handleDeleteProduct}
+            />
+          </Layout>
+        ) : (
+          <Navigate to="/login" />
+        )
+      }
+    />
 
-            {activePage === "riwayat" && (
-              <Riwayat user={user} />
-            )}
-          </>
-        )}
-      </Layout>
-    </div>
-  );
+    <Route
+      path="/keranjang"
+      element={
+        user ? (
+          <Layout user={user} onLogout={handleLogout}>
+            <Keranjang />
+          </Layout>
+        ) : (
+          <Navigate to="/login" />
+        )
+      }
+    />
+
+    <Route
+      path="/riwayat"
+      element={
+        user ? (
+          <Layout user={user} onLogout={handleLogout}>
+            <Riwayat user={user} />
+          </Layout>
+        ) : (
+          <Navigate to="/login" />
+        )
+      }
+    />
+  </Routes>
+);
 }
 
 export default App;

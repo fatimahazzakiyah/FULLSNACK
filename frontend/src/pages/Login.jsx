@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 export default function Login({ onLogin }) {
   const [errorMessage, setErrorMessage] = useState("");
@@ -134,6 +135,19 @@ export default function Login({ onLogin }) {
             Login
           </button>
         </form>
+        <p style={{ marginTop: "20px", fontSize: "14px", color: "#555" }}>
+          Belum punya akun?{" "}
+          <Link
+            to="/register"
+            style={{
+              color: "#ff69b4",
+              fontWeight: "bold",
+              textDecoration: "underline",
+            }}
+          >
+            Daftar di sini
+          </Link>
+        </p>
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
-export default function Register({ onSwitchToLogin }) {
+export default function Register() {
   // 🌸 FORM HANDLING: State untuk menyimpan inputan Nama, Email, & Password
   const [formData, setFormData] = useState({
     username: "", // Menampung Nama
@@ -131,12 +132,16 @@ export default function Register({ onSwitchToLogin }) {
 
         <p style={{ marginTop: "20px", fontSize: "14px", color: "#555" }}>
           Sudah punya akun?{" "}
-          <span 
-            onClick={onSwitchToLogin} 
-            style={{ color: "#ff85a2", cursor: "pointer", fontWeight: "bold", textDecoration: "underline" }}
+          <Link
+            to="/login"
+            style={{
+              color: "#ff85a2",
+              fontWeight: "bold",
+              textDecoration: "underline",
+            }}
           >
             Login di sini
-          </span>
+          </Link>
         </p>
       </div>
     </div>
