@@ -3,8 +3,8 @@ import axios from "axios";
 
 export default function Keranjang() {
   const [cartItems, setCartItems] = useState([]);
-  const [isSuccess, setIsSuccess] = useState(false); // State baru buat cek sukses
-  const [totalBayar, setTotalBayar] = useState(0); // Buat simpan total pas sukses
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [totalBayar, setTotalBayar] = useState(0);
   const API = "http://localhost:3000/api";
 
   const fetchCart = () => {
@@ -21,14 +21,17 @@ export default function Keranjang() {
   const calculateTotal = () => {
     return cartItems.reduce(
       (total, item) => total + item.harga * item.quantity,
-      0,
+      0
     );
   };
 
   const handleCheckout = () => {
-    if (cartItems.length === 0) return alert("Keranjang masih kosong!");
+    if (cartItems.length === 0) {
+      return alert("Keranjang masih kosong!");
+    }
 
     const total = calculateTotal();
+
     const dataCheckout = {
       id_user: 1,
       total_harga: total,
@@ -37,15 +40,15 @@ export default function Keranjang() {
 
     axios
       .post(`${API}/cart/checkout`, dataCheckout)
-      .then((res) => {
-        setTotalBayar(total); 
-        setIsSuccess(true); 
-        setCartItems([]); 
+      .then(() => {
+        setTotalBayar(total);
+        setIsSuccess(true);
+        setCartItems([]);
       })
-      .catch((err) => alert("Gagal checkout!"));
+      .catch(() => alert("Gagal checkout!"));
   };
 
-  // --- TAMPILAN 1: KALAU CHECKOUT BERHASIL ---
+  // TAMPILAN JIKA CHECKOUT BERHASIL
   if (isSuccess) {
     return (
       <div
@@ -53,7 +56,6 @@ export default function Keranjang() {
           padding: "50px",
           textAlign: "center",
           backgroundColor: "#fffafb",
-          minHeight: "80vh",
         }}
       >
         <div
@@ -66,18 +68,30 @@ export default function Keranjang() {
             border: "2px solid #ff69b4",
           }}
         >
-          <h1 style={{ color: "#ff69b4" }}>Pesanan Berhasil Dibuat!</h1>
+          <h1 style={{ color: "#ff69b4" }}>
+            Pesanan Berhasil Dibuat!
+          </h1>
+
           <p style={{ fontSize: "18px", color: "#555" }}>
             Mohon siapkan uang tunai sebesar:
           </p>
-          <h2 style={{ fontSize: "32px", color: "#333", margin: "20px 0" }}>
+
+          <h2
+            style={{
+              fontSize: "32px",
+              color: "#333",
+              margin: "20px 0",
+            }}
+          >
             Rp {totalBayar.toLocaleString("id-ID")}
           </h2>
+
           <p style={{ color: "#888" }}>
             Snack kamu akan segera diproses oleh tim kami.
           </p>
+
           <button
-            onClick={() => window.location.reload()} 
+            onClick={() => window.location.reload()}
             style={{
               backgroundColor: "#ffb6c1",
               color: "white",
@@ -95,27 +109,40 @@ export default function Keranjang() {
     );
   }
 
-  // --- TAMPILAN 2: HALAMAN KERANJANG BIASA ---
+  // HALAMAN KERANJANG
   return (
     <div
       style={{
         padding: "50px",
         textAlign: "center",
         backgroundColor: "#fffafb",
-        minHeight: "80vh",
       }}
     >
-      <h2 style={{ color: "#ff69b4", fontWeight: "bold" }}>
+      <h2
+        style={{
+          color: "#ff69b4",
+          fontWeight: "bold",
+        }}
+      >
         Keranjang Belanja Kamu
       </h2>
 
       {cartItems.length === 0 ? (
-        <p style={{ color: "#888", marginTop: "30px" }}>
+        <p
+          style={{
+            color: "#888",
+            marginTop: "30px",
+          }}
+        >
           Yah, keranjang kosong. Yuk jajan!
         </p>
       ) : (
         <div
-          style={{ marginTop: "30px", maxWidth: "600px", margin: "30px auto" }}
+          style={{
+            marginTop: "30px",
+            maxWidth: "600px",
+            margin: "30px auto",
+          }}
         >
           {cartItems.map((item) => (
             <div
@@ -130,16 +157,26 @@ export default function Keranjang() {
               <span>
                 {item.nama} (x{item.quantity})
               </span>
+
               <span>
-                Rp {(item.harga * item.quantity).toLocaleString("id-ID")}
+                Rp{" "}
+                {(item.harga * item.quantity).toLocaleString(
+                  "id-ID"
+                )}
               </span>
             </div>
           ))}
+
           <h3
-            style={{ textAlign: "right", color: "#ff69b4", marginTop: "20px" }}
+            style={{
+              textAlign: "right",
+              color: "#ff69b4",
+              marginTop: "20px",
+            }}
           >
             Total: Rp {calculateTotal().toLocaleString("id-ID")}
           </h3>
+
           <button
             onClick={handleCheckout}
             style={{
