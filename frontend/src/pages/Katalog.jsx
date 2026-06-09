@@ -8,12 +8,11 @@ const api = axios.create({
 export default function Katalog({ onDeleteProduct }) {
   const [products, setProducts] = useState([]);
 
-  // 🌸 REVANI: LOADING & ERROR STATE
+ 
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
 
-  // 🌸 ARRA: FETCH PRODUCTS DARI API
-  // 🌸 Refactoring Maulidya: merapikan alur loading dengan finally agar tidak berulang
+
   const fetchProducts = async () => {
     try {
       setIsLoading(true);
@@ -56,7 +55,7 @@ export default function Katalog({ onDeleteProduct }) {
     <div style={{ padding: "20px", textAlign: "center" }}>
       <h2 style={{ color: "#ff69b4" }}>Our Snack Collection</h2>
 
-      {/* 🌸 REVANI: STATUS LOADING */}
+      {/* 🌸 */}
       {isLoading && (
         <p
           style={{
@@ -69,7 +68,7 @@ export default function Katalog({ onDeleteProduct }) {
         </p>
       )}
 
-      {/* 🌸 REVANI: STATUS ERROR */}
+      {/* 🌸 */}
       {isError && (
         <p
           style={{
@@ -183,7 +182,7 @@ export default function Katalog({ onDeleteProduct }) {
                 Tambah Ke Keranjang
               </button>
 
-              {/* 🌸 TIYA: TOMBOL HAPUS PRODUK DENGAN API DELETE */}
+              {/* 🌸 */}
               <button
                 onClick={() => onDeleteProduct(p.id_product)}
                 style={{
@@ -205,4 +204,4 @@ export default function Katalog({ onDeleteProduct }) {
     </div>
   );
 }
-{/* 🌸 QC Maulidya: id disesuaikan menjadi id_product sesuai primary key database */}
+{/* 🌸 */}
