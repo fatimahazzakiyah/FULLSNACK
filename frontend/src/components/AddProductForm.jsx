@@ -74,7 +74,7 @@ const AddProductForm = ({ onAddProduct }) => {
               border: isNamaError ? "1px solid red" : "1px solid #ccc",
             }}
           />
-          {/* Slot Kosong: Nanti teks error merah di bawah input ini akan di-render oleh Revani (Anggota 2) */}
+          
         </div>
 
         <div style={{ marginBottom: "1rem" }}>
@@ -92,7 +92,7 @@ const AddProductForm = ({ onAddProduct }) => {
               border: isHargaError ? "1px solid red" : "1px solid #ccc",
             }}
           />
-          {/* Slot Kosong: Nanti teks error merah di bawah input ini akan di-render oleh Revani (Anggota 2) */}
+          
         </div>
 
         <div style={{ marginBottom: "1rem" }}>
@@ -110,7 +110,7 @@ const AddProductForm = ({ onAddProduct }) => {
               border: isStokError ? "1px solid red" : "1px solid #ccc",
             }}
           />
-          {/* Slot Kosong: Nanti teks error merah di bawah input ini akan di-render oleh Revani (Anggota 2) */}
+          
         </div>
 
         <button

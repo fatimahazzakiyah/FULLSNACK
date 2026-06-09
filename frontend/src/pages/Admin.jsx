@@ -19,6 +19,10 @@ export default function Admin() {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
 
+  const [isNamaError, setIsNamaError] = useState(false);
+  const [isHargaError, setIsHargaError] = useState(false);
+  const [isStokError, setIsStokError] = useState(false);
+
   // STYLE
   const inputStyle = {
     margin: "5px",
@@ -85,6 +89,29 @@ export default function Admin() {
   // TAMBAH PRODUK
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    setIsNamaError(false);
+    setIsHargaError(false);
+    setIsStokError(false);
+
+    let error = false;
+
+    if (form.nama_produk.trim() === "") {
+      setIsNamaError(true);
+      error = true;
+    }
+
+    if (form.harga === "") {
+      setIsHargaError(true);
+      error = true;
+    }
+
+    if (form.stok === "") {
+      setIsStokError(true);
+      error = true;
+    }
+
+    if (error) return;
 
     const formData = new FormData();
 
@@ -173,14 +200,37 @@ export default function Admin() {
           }}
         >
           <input
-            style={inputStyle}
+            style={{
+              ...inputStyle,
+              border: isNamaError
+                ? "1px solid red"
+                : "1px solid #ffb6c1",
+            }}
             placeholder="Nama Produk"
             value={form.nama_produk}
-            onChange={(e) =>
-              setForm({ ...form, nama_produk: e.target.value })
-            }
-            required
+            onChange={(e) => {
+              setForm({
+                ...form,
+                nama_produk: e.target.value,
+              });
+
+              if (e.target.value.trim() !== "") {
+                setIsNamaError(false);
+              }
+            }}
           />
+
+          {isNamaError && (
+            <p
+              style={{
+                color: "red",
+                fontSize: "12px",
+                margin: "0 0 0 5px",
+              }}
+            >
+              Nama snack wajib diisi!
+            </p>
+          )}
 
           <input
             style={inputStyle}
@@ -190,8 +240,19 @@ export default function Admin() {
             onChange={(e) =>
               setForm({ ...form, harga: e.target.value })
             }
-            required
           />
+
+          {isHargaError && (
+            <p
+              style={{
+                color: "red",
+                fontSize: "12px",
+                margin: "0 0 0 5px",
+              }}
+            >
+              Harga wajib diisi!
+            </p>
+          )}
 
           <input
             style={inputStyle}
@@ -201,8 +262,19 @@ export default function Admin() {
             onChange={(e) =>
               setForm({ ...form, stok: e.target.value })
             }
-            required
           />
+
+          {isStokError && (
+            <p
+              style={{
+                color: "red",
+                fontSize: "12px",
+                margin: "0 0 0 5px",
+              }}
+            >
+              Stok wajib diisi!
+            </p>
+          )}
 
           {/* BUTTON UPLOAD */}
           <label

@@ -18,6 +18,8 @@ function App() {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
+  console.log("USER APP:", user);
+
   // Dipakai untuk memuat ulang katalog setelah produk berhasil dihapus
   const [catalogRefreshKey, setCatalogRefreshKey] = useState(0);
 
@@ -43,12 +45,15 @@ function App() {
     if (!isConfirmed) return;
 
     try {
-      await axios.delete(`http://localhost:3000/api/products/${idProduct}`);
+      await axios.delete(
+        `http://localhost:3000/api/products/${idProduct}`
+      );
 
       alert("Produk berhasil dihapus!");
 
-      // Refresh katalog setelah produk dihapus
-      setCatalogRefreshKey((previousKey) => previousKey + 1);
+      setCatalogRefreshKey(
+        (previousKey) => previousKey + 1
+      );
     } catch (error) {
       console.error("Gagal menghapus produk:", error);
       alert("Gagal menghapus produk dari database.");
@@ -56,77 +61,114 @@ function App() {
   };
 
   return (
-  <Routes>
-    <Route
-      path="/login"
-      element={<Login onLogin={(data) => setUser(data)} />}
-    />
+    <Routes>
+      {/* LOGIN */}
+      <Route
+        path="/login"
+        element={
+          <Login
+            onLogin={(data) => {
+              setUser(data);
+            }}
+          />
+        }
+      />
 
-    <Route path="/register" element={<Register />} />
+      {/* REGISTER */}
+      <Route
+        path="/register"
+        element={<Register />}
+      />
 
-    <Route
-      path="/"
-      element={
-        user ? (
-          <Layout user={user} onLogout={handleLogout}>
-            {user.role === "admin" ? (
-              <Admin />
-            ) : (
+      {/* HALAMAN UTAMA */}
+      <Route
+        path="/"
+        element={
+          user ? (
+            <Layout
+              user={user}
+              onLogout={handleLogout}
+            >
+              {user.role === "admin" ? (
+                <Admin />
+              ) : (
+                <Katalog
+                  key={catalogRefreshKey}
+                  onDeleteProduct={
+                    handleDeleteProduct
+                  }
+                />
+              )}
+            </Layout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+
+      {/* KATALOG */}
+      <Route
+        path="/katalog"
+        element={
+          user ? (
+            <Layout
+              user={user}
+              onLogout={handleLogout}
+            >
               <Katalog
                 key={catalogRefreshKey}
-                onDeleteProduct={handleDeleteProduct}
+                onDeleteProduct={
+                  handleDeleteProduct
+                }
               />
-            )}
-          </Layout>
-        ) : (
-          <Navigate to="/login" />
-        )
-      }
-    />
+            </Layout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
 
-    <Route
-      path="/katalog"
-      element={
-        user ? (
-          <Layout user={user} onLogout={handleLogout}>
-            <Katalog
-              key={catalogRefreshKey}
-              onDeleteProduct={handleDeleteProduct}
-            />
-          </Layout>
-        ) : (
-          <Navigate to="/login" />
-        )
-      }
-    />
+      {/* KERANJANG */}
+      <Route
+        path="/keranjang"
+        element={
+          user ? (
+            <Layout
+              user={user}
+              onLogout={handleLogout}
+            >
+              <Keranjang />
+            </Layout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
 
-    <Route
-      path="/keranjang"
-      element={
-        user ? (
-          <Layout user={user} onLogout={handleLogout}>
-            <Keranjang />
-          </Layout>
-        ) : (
-          <Navigate to="/login" />
-        )
-      }
-    />
+      {/* RIWAYAT */}
+      <Route
+        path="/riwayat"
+        element={
+          user ? (
+            <Layout
+              user={user}
+              onLogout={handleLogout}
+            >
+              <Riwayat user={user} />
+            </Layout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
 
-    <Route
-      path="/riwayat"
-      element={
-        user ? (
-          <Layout user={user} onLogout={handleLogout}>
-            <Riwayat user={user} />
-          </Layout>
-        ) : (
-          <Navigate to="/login" />
-        )
-      }
-    />
-  </Routes>
-);
+      {/* Jika URL tidak ditemukan */}
+      <Route
+        path="*"
+        element={<Navigate to="/" />}
+      />
+    </Routes>
+  );
 }
 
 export default App;

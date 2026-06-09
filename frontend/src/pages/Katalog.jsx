@@ -68,7 +68,7 @@ export default function Katalog({ onDeleteProduct }) {
         </p>
       )}
 
-      {/* 🌸 */}
+      
       {isError && (
         <p
           style={{
@@ -182,7 +182,7 @@ export default function Katalog({ onDeleteProduct }) {
                 Tambah Ke Keranjang
               </button>
 
-              {/* 🌸 */}
+             
               <button
                 onClick={() => onDeleteProduct(p.id_product)}
                 style={{
@@ -204,4 +204,3 @@ export default function Katalog({ onDeleteProduct }) {
     </div>
   );
 }
-{/* 🌸 */}

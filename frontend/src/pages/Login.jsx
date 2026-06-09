@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Login({ onLogin }) {
   const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,14 +25,20 @@ export default function Login({ onLogin }) {
 
       alert("Login berhasil!");
 
-      console.log(res.data);
+      console.log("DATA LOGIN:", res.data);
 
-      onLogin(
+      const userData =
         res.data.user || {
           email,
           role: "user",
-        }
-      );
+        };
+
+      console.log("USER YANG DIKIRIM:", userData);
+
+      onLogin(userData);
+
+      // Pindah ke halaman utama setelah login sukses
+      navigate("/");
 
     } catch (err) {
       console.log("ERROR :", err);
@@ -135,7 +142,14 @@ export default function Login({ onLogin }) {
             Login
           </button>
         </form>
-        <p style={{ marginTop: "20px", fontSize: "14px", color: "#555" }}>
+
+        <p
+          style={{
+            marginTop: "20px",
+            fontSize: "14px",
+            color: "#555",
+          }}
+        >
           Belum punya akun?{" "}
           <Link
             to="/register"
