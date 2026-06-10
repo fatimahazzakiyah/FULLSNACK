@@ -3,24 +3,14 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 
 export default function Register() {
-  // 🌸 FORM HANDLING: State untuk menyimpan inputan Nama, Email, & Password
-  const [formData, setFormData] = useState({
-    username: "", // Menampung Nama
-    email: "",    // Menampung Email
-    password: "", // Menampung Password
-    role: "user"  // Default sebagai pembeli biasa
-  });
+  // 🌸 TUGAS TIYA: Memecah state menjadi masing-masing (Controlled Component)
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role] = useState("user"); // Tetap default sebagai pembeli biasa
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
-  // 🌸 FORM HANDLING: Fungsi otomatis menangkap ketikan user di kolom input
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
 
   // 🌸 SUBMIT HANDLING: Fungsi pas tombol pendaftaran diklik
   const handleSubmit = async (e) => {
@@ -29,19 +19,27 @@ export default function Register() {
     setSuccess("");
 
     // Validasi singkat biar gak kosong
-    if (!formData.username || !formData.email || !formData.password) {
+    if (!username || !email || !password) {
       setError("Semua kolom wajib diisi ya!");
       return;
     }
 
     try {
       // 🌸 PORT DISESUAIKAN KE 3000 (Mengikuti API Login milik Aura)
-      const response = await axios.post("http://localhost:3000/api/auth/register", formData);
+      // Mengirimkan state terpisah ke dalam body request API
+      const response = await axios.post("http://localhost:3000/api/auth/register", {
+        username,
+        email,
+        password,
+        role
+      });
       
       if (response.data) {
         setSuccess("Akun FullSnack kamu berhasil dibuat! 🎉 Silakan Login.");
-        // Reset form setelah berhasil
-        setFormData({ username: "", email: "", password: "", role: "user" });
+        // Reset masing-masing state setelah berhasil daftar
+        setUsername("");
+        setEmail("");
+        setPassword("");
       }
     } catch (err) {
       console.error(err);
@@ -74,40 +72,38 @@ export default function Register() {
         {success && <div style={{ color: "#2ecc71", marginBottom: "15px", fontSize: "14px", fontWeight: "bold" }}>{success}</div>}
 
         <form onSubmit={handleSubmit}>
-          {/* Kolom Nama */}
+          
+          {/* 🌸 TUGAS TIYA: Kolom Nama diikat ke state 'username' dan 'setUsername' */}
           <div style={{ marginBottom: "15px", textAlign: "left" }}>
             <label style={{ color: "#ff85a2", fontSize: "14px", fontWeight: "bold" }}>Nama / Username</label>
             <input
               type="text"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               placeholder="Masukkan nama lengkap"
               style={{ width: "100%", padding: "10px", marginTop: "5px", borderRadius: "10px", border: "1px solid #ffb6c1", boxSizing: "border-box" }}
             />
           </div>
 
-          {/* Kolom Email */}
+          {/* 🌸 TUGAS TIYA: Kolom Email diikat ke state 'email' dan 'setEmail' */}
           <div style={{ marginBottom: "15px", textAlign: "left" }}>
             <label style={{ color: "#ff85a2", fontSize: "14px", fontWeight: "bold" }}>Email</label>
             <input
               type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="nama@email.com"
               style={{ width: "100%", padding: "10px", marginTop: "5px", borderRadius: "10px", border: "1px solid #ffb6c1", boxSizing: "border-box" }}
             />
           </div>
 
-          {/* Kolom Password */}
+          {/* 🌸 TUGAS TIYA: Kolom Password diikat ke state 'password' dan 'setPassword' */}
           <div style={{ marginBottom: "20px", textAlign: "left" }}>
             <label style={{ color: "#ff85a2", fontSize: "14px", fontWeight: "bold" }}>Password</label>
             <input
               type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="Buat password rahasia"
               style={{ width: "100%", padding: "10px", marginTop: "5px", borderRadius: "10px", border: "1px solid #ffb6c1", boxSizing: "border-box" }}
             />
@@ -126,7 +122,7 @@ export default function Register() {
             fontWeight: "bold",
             boxShadow: "0 4px 6px rgba(255, 133, 162, 0.2)"
           }}>
-            Daftar Sekarang 
+            Daftar Sekarang
           </button>
         </form>
 
