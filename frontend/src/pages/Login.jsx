@@ -4,15 +4,17 @@ import { Link, useNavigate } from "react-router-dom";
 
 export default function Login({ onLogin }) {
   const [errorMessage, setErrorMessage] = useState("");
+
+  // Tambahan untuk Controlled Component
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     setErrorMessage("");
-
-    const email = e.target.email.value;
-    const password = e.target.password.value;
 
     try {
       const res = await axios.post(
@@ -37,7 +39,6 @@ export default function Login({ onLogin }) {
 
       onLogin(userData);
 
-      // Pindah ke halaman utama setelah login sukses
       navigate("/");
 
     } catch (err) {
@@ -48,7 +49,7 @@ export default function Login({ onLogin }) {
         err.response.status === 401
       ) {
         setErrorMessage(
-          "Email atau Password salah! ❌"
+          "Email atau Password salah!"
         );
       } else {
         setErrorMessage(
@@ -103,6 +104,8 @@ export default function Login({ onLogin }) {
             name="email"
             type="email"
             placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
             style={{
               display: "block",
@@ -117,6 +120,8 @@ export default function Login({ onLogin }) {
             name="password"
             type="password"
             placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
             style={{
               display: "block",
