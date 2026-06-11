@@ -11,7 +11,7 @@ const AddProductForm = ({ onAddProduct }) => {
   const [isStokError, setIsStokError] = useState(false);
 
   const handleSubmit = (e) => {
-    e.preventDefault(); // Mencegah reload halaman otomatis
+    e.preventDefault(); // handling submit agar form tidak reload saat tombol diklik
 
     // Reset status error setiap kali tombol disubmit ulang
     setIsNamaError(false);
