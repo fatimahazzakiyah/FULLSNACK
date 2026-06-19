@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Login({ onLogin }) {
   const [errorMessage, setErrorMessage] = useState("");
@@ -10,6 +12,7 @@ export default function Login({ onLogin }) {
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,12 +39,10 @@ export default function Login({ onLogin }) {
         };
 
       console.log("USER YANG DIKIRIM:", userData);
-
-      // Simpan token untuk ProtectedRoute
-      localStorage.setItem("token", res.data.token);
-
+      
+      login(res.data.token, userData);
       onLogin(userData);
-
+      
       navigate("/");
 
     } catch (err) {
