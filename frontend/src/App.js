@@ -10,6 +10,7 @@ import Katalog from "./pages/Katalog";
 import Keranjang from "./pages/Keranjang";
 import Riwayat from "./pages/Riwayat";
 import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
 function App() {
   // Ambil data user dari localStorage saat aplikasi pertama kali dibuka
@@ -33,6 +34,7 @@ function App() {
   // Logout
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
     setUser(null);
   };
 
@@ -84,25 +86,18 @@ function App() {
       <Route
         path="/"
         element={
-          user ? (
-            <Layout
-              user={user}
-              onLogout={handleLogout}
-            >
-              {user.role === "admin" ? (
+          <ProtectedRoute>
+            <Layout user={user} onLogout={handleLogout}>
+              {user?.role === "admin" ? (
                 <Admin />
               ) : (
                 <Katalog
                   key={catalogRefreshKey}
-                  onDeleteProduct={
-                    handleDeleteProduct
-                  }
+                  onDeleteProduct={handleDeleteProduct}
                 />
               )}
             </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
+          </ProtectedRoute>
         }
       />
 
@@ -110,7 +105,7 @@ function App() {
       <Route
         path="/katalog"
         element={
-          user ? (
+          <ProtectedRoute>
             <Layout
               user={user}
               onLogout={handleLogout}
@@ -122,9 +117,7 @@ function App() {
                 }
               />
             </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
+          </ProtectedRoute>
         }
       />
 
@@ -132,16 +125,14 @@ function App() {
       <Route
         path="/keranjang"
         element={
-          user ? (
+          <ProtectedRoute>
             <Layout
               user={user}
               onLogout={handleLogout}
             >
               <Keranjang />
             </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
+          </ProtectedRoute>
         }
       />
 
@@ -149,16 +140,14 @@ function App() {
       <Route
         path="/riwayat"
         element={
-          user ? (
+          <ProtectedRoute>
             <Layout
               user={user}
               onLogout={handleLogout}
             >
               <Riwayat user={user} />
             </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
+          </ProtectedRoute>
         }
       />
 

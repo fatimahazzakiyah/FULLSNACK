@@ -37,6 +37,9 @@ export default function Login({ onLogin }) {
 
       console.log("USER YANG DIKIRIM:", userData);
 
+      // Simpan token untuk ProtectedRoute
+      localStorage.setItem("token", res.data.token);
+
       onLogin(userData);
 
       navigate("/");
