@@ -18,6 +18,10 @@ export default function Register() {
     setError("");
     setSuccess("");
 
+    console.log("Username:", username);
+    console.log("Email:", email);
+    console.log("Password:", password);
+
     // Validasi singkat biar gak kosong
     if (!username || !email || !password) {
       setError("Semua kolom wajib diisi ya!");
@@ -27,12 +31,14 @@ export default function Register() {
     try {
       // 🌸 PORT DISESUAIKAN KE 3000 (Mengikuti API Login milik Aura)
       // Mengirimkan state terpisah ke dalam body request API
-      const response = await axios.post("http://localhost:3000/api/auth/register", {
-        username,
-        email,
-        password,
-        role
-      });
+      const response = await axios.post(
+        "http://localhost:3000/api/register",
+        {
+          nama : username,
+          email,
+          password
+        }
+      );
       
       if (response.data) {
         setSuccess("Akun FullSnack kamu berhasil dibuat! 🎉 Silakan Login.");
@@ -42,9 +48,15 @@ export default function Register() {
         setPassword("");
       }
     } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.message || "Gagal register, coba cek API Backend kelompok!");
-    }
+        console.log("ERROR REGISTER:", err);
+        console.log("RESPONSE:", err.response);
+        console.log("DATA:", err.response?.data);
+
+        setError(
+          err.response?.data?.message ||
+          "Gagal register, coba cek API Backend kelompok!"
+        );
+      }
   };
 
   return (

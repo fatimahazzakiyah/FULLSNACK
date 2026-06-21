@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 
 const api = axios.create({
@@ -7,6 +8,7 @@ const api = axios.create({
 
 export default function Katalog({ onDeleteProduct }) {
   const [products, setProducts] = useState([]);
+  const { token, user } = useContext(AuthContext);
 
  
   const [isLoading, setIsLoading] = useState(true);
@@ -50,6 +52,16 @@ export default function Katalog({ onDeleteProduct }) {
       alert("Gagal masuk keranjang, cek koneksi API!");
     }
   };
+
+  if (!token) {
+    return (
+      <div style={{ textAlign: "center", marginTop: "50px" }}>
+        <h2>
+          Silakan login terlebih dahulu untuk mengakses Dashboard FullSnack
+        </h2>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: "20px", textAlign: "center" }}>
@@ -183,20 +195,22 @@ export default function Katalog({ onDeleteProduct }) {
               </button>
 
              
-              <button
-                onClick={() => onDeleteProduct(p.id_product)}
-                style={{
-                  backgroundColor: "#e74c3c",
-                  color: "white",
-                  border: "none",
-                  padding: "10px 15px",
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                  width: "100%",
-                }}
-              >
-                🗑️ Hapus Snack
-              </button>
+              {user?.role === "admin" && (
+                <button
+                  onClick={() => onDeleteProduct(p.id_product)}
+                  style={{
+                    backgroundColor: "#e74c3c",
+                    color: "white",
+                    border: "none",
+                    padding: "10px 15px",
+                    borderRadius: "10px",
+                    cursor: "pointer",
+                    width: "100%",
+                  }}
+                >
+                  🗑️ Hapus Snack
+                </button>
+              )}
             </div>
           ))}
         </div>
