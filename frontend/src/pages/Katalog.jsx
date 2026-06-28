@@ -1,29 +1,27 @@
 import React, { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 
-const api = axios.create({
-  baseURL: "http://localhost:3000/api",
-});
+const api = axios.create({ baseURL: "http://localhost:3000/api" });
 
 export default function Katalog({ onDeleteProduct }) {
   const [products, setProducts] = useState([]);
-  const { token, user } = useContext(AuthContext);
-
- 
+  const { token, user, logout } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!token) navigate("/login");
+  }, [token]);
 
   const fetchProducts = async () => {
     try {
       setIsLoading(true);
-      setIsError(false);
-
       const response = await api.get("/products");
       setProducts(response.data);
     } catch (err) {
-      console.error("Gagal memuat data produk:", err);
       setIsError(true);
     } finally {
       setIsLoading(false);
@@ -34,187 +32,103 @@ export default function Katalog({ onDeleteProduct }) {
     fetchProducts();
   }, []);
 
-  // FITUR TAMBAH PRODUK KE KERANJANG
   const addToCart = async (product) => {
+    if (!token) {
+      alert("Silakan login terlebih dahulu.");
+      return;
+    }
     try {
-      await api.post("/cart", {
-        id_product: product.id_product,
-        quantity: 1,
-      });
-
-      alert(`Berhasil memasukkan ${product.nama} ke keranjang!`);
-    } catch (err) {
-      console.error(
-        "Gagal memasukkan produk ke keranjang:",
-        err.response ? err.response.data : err.message
+      await api.post(
+        "/cart",
+        { id_product: product.id_product, quantity: 1 },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-
-      alert("Gagal masuk keranjang, cek koneksi API!");
+      alert(`${product.nama} berhasil ditambahkan ke keranjang.`);
+    } catch (err) {
+      alert(err.response?.data?.message || "Gagal menambahkan ke keranjang.");
     }
   };
 
-  if (!token) {
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  if (isLoading)
     return (
-      <div style={{ textAlign: "center", marginTop: "50px" }}>
-        <h2>
-          Silakan login terlebih dahulu untuk mengakses Dashboard FullSnack
-        </h2>
+      <div style={{ textAlign: "center", marginTop: "50px", color: "#ff69b4" }}>
+        Memuat produk...
       </div>
     );
-  }
+
+  if (isError)
+    return (
+      <div style={{ textAlign: "center", marginTop: "50px", color: "red" }}>
+        Gagal memuat produk.
+      </div>
+    );
 
   return (
-    <div style={{ padding: "20px", textAlign: "center" }}>
-      <h2 style={{ color: "#ff69b4" }}>Our Snack Collection</h2>
+    <div style={{ backgroundColor: "#fff0f5", minHeight: "100vh" }}>
+      <nav className="navbar">
+        <h2>FullSnack</h2>
+        <div className="navbar-links">
+          {user?.role !== "admin" && (
+            <>
+              <button className="nav-btn" onClick={() => navigate("/cart")}>
+                Keranjang
+              </button>
+              <button className="nav-btn" onClick={() => navigate("/riwayat")}>
+                Riwayat
+              </button>
+            </>
+          )}
+          <span className="nav-greeting">Halo, {user?.nama}</span>
+          <button className="nav-btn-danger" onClick={handleLogout}>
+            Keluar
+          </button>
+        </div>
+      </nav>
 
-      {/* 🌸 */}
-      {isLoading && (
-        <p
-          style={{
-            color: "#ff69b4",
-            fontWeight: "bold",
-            marginTop: "20px",
-          }}
-        >
-          ⏳ Sedang memuat produk snack...
-        </p>
-      )}
-
-      
-      {isError && (
-        <p
-          style={{
-            color: "#e74c3c",
-            fontWeight: "bold",
-            marginTop: "20px",
-          }}
-        >
-          ❌ Terjadi kesalahan, gagal memuat data!
-        </p>
-      )}
-
-      {/* DAFTAR PRODUK */}
-      {!isLoading && !isError && (
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            gap: "20px",
-            marginTop: "20px",
-          }}
-        >
+      <div className="katalog-container">
+        <h2 style={{ color: "#ff69b4", marginBottom: "20px" }}>
+          Our Snack Collection
+        </h2>
+        <div className="katalog-grid">
           {products.map((p) => (
-            <div
-              key={p.id_product}
-              style={{
-                border: "2px solid #ffe4ec",
-                padding: "20px",
-                borderRadius: "20px",
-                width: "250px",
-                backgroundColor: "white",
-                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.05)",
-              }}
-            >
-              {/* IMAGE PRODUK */}
-              {p.image ? (
+            <div key={p.id_product} className="product-card">
+              {p.image && (
                 <img
                   src={`http://localhost:3000/uploads/${p.image}`}
                   alt={p.nama}
-                  style={{
-                    width: "100%",
-                    height: "150px",
-                    objectFit: "cover",
-                    borderRadius: "10px",
-                    marginBottom: "10px",
-                  }}
                 />
-              ) : (
-                <div
-                  style={{
-                    height: "150px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: "#ffe4ec",
-                    borderRadius: "10px",
-                    marginBottom: "10px",
-                    color: "#ff69b4",
-                    fontSize: "12px",
-                  }}
-                >
-                  No Image
-                </div>
               )}
-
-              <h3
-                style={{
-                  color: "#ff69b4",
-                  textTransform: "capitalize",
-                  marginBottom: "8px",
-                }}
-              >
-                {p.nama}
-              </h3>
-
+              <h3>{p.nama}</h3>
+              <p>Rp {Number(p.harga || 0).toLocaleString("id-ID")}</p>
               <p
                 style={{
-                  color: "#ff69b4",
-                  fontWeight: "bold",
-                  marginBottom: "8px",
+                  color: "#aaa",
+                  fontSize: "12px",
+                  fontWeight: "normal",
                 }}
               >
-                Rp {Number(p.harga || 0).toLocaleString("id-ID")}
+                Stok: {p.stok}
               </p>
-
-              <p
-                style={{
-                  fontSize: "14px",
-                  color: "#7f8c8d",
-                  marginBottom: "14px",
-                }}
-              >
-                Tersedia: {p.stok} pcs
-              </p>
-
-              {/* TOMBOL TAMBAH KE KERANJANG */}
-              <button
-                onClick={() => addToCart(p)}
-                style={{
-                  backgroundColor: "#ffb6c1",
-                  color: "white",
-                  border: "none",
-                  padding: "10px 15px",
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                  width: "100%",
-                  marginBottom: "10px",
-                }}
-              >
-                Tambah Ke Keranjang
+              <button className="btn-cart" onClick={() => addToCart(p)}>
+                Tambah ke Keranjang
               </button>
-
-             
               {user?.role === "admin" && (
                 <button
+                  className="btn-hapus"
                   onClick={() => onDeleteProduct(p.id_product)}
-                  style={{
-                    backgroundColor: "#e74c3c",
-                    color: "white",
-                    border: "none",
-                    padding: "10px 15px",
-                    borderRadius: "10px",
-                    cursor: "pointer",
-                    width: "100%",
-                  }}
                 >
-                  🗑️ Hapus Snack
+                  Hapus
                 </button>
               )}
             </div>
           ))}
         </div>
-      )}
+      </div>
     </div>
   );
 }

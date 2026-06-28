@@ -1,136 +1,140 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-// Import Routes dan Route untuk mengatur perpindahan halaman
-import { Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import AddProductForm from "./components/AddProductForm";
-import Products from "./components/Products";
-import Footer from "./components/Footer";
+import { Routes, Route, Navigate } from "react-router-dom";
 
-// IMPORT AUTHPROVIDER YANG BARUSAN KAMU BUAT
-import { AuthProvider } from "./context/AuthContext";
-
-// --- HALAMAN UTAMA / DASHBOARD TOKO (Menggunakan komponen asli kamu) ---
-const DashboardPage = ({ products, handleAddProduct }) => {
-  return (
-    <main
-      style={{
-        flex: 1,
-        maxWidth: "800px",
-        width: "100%",
-        margin: "2rem auto",
-        padding: "0 1rem",
-      }}
-    >
-      <h2
-        style={{
-          textAlign: "center",
-          color: "#ff69b4",
-          marginBottom: "2rem",
-        }}
-      >
-        FULLSNACK DASHBOARD (LIVE API)
-      </h2>
-
-      {/* Form Tambah Produk */}
-      <AddProductForm onAddProduct={handleAddProduct} />
-
-      {/* List Tampilan Produk */}
-      <Products productsList={products} />
-    </main>
-  );
-};
-
-// --- PLACEHOLDER HALAMAN SEMENTARA UNTUK ANGGOTA LAIN ---
-const LoginPlaceholder = () => (
-  <div style={{ padding: "3rem", textAlign: "center", fontWeight: "bold" }}>
-    Halaman Login (Tugas Aura)
-  </div>
-);
-const RegisterPlaceholder = () => (
-  <div style={{ padding: "3rem", textAlign: "center", fontWeight: "bold" }}>
-    Halaman Register (Tugas Tiya)
-  </div>
-);
+import "./App.css";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Admin from "./pages/Admin";
+import Katalog from "./pages/Katalog";
+import Keranjang from "./pages/Keranjang";
+import Riwayat from "./pages/Riwayat";
+import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
 function App() {
-  const [products, setProducts] = useState([]);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
-  // State Loading & Error
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
+  console.log("USER APP:", user);
 
-  // Fetch Products API
-  const fetchProducts = async () => {
-    try {
-      setIsLoading(true);
-      setIsError(false);
-
-      const response = await axios.get("http://localhost:3000/api/products");
-      setProducts(response.data);
-
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Gagal memuat data produk:", error);
-      setIsError(true);
-      setIsLoading(false);
-    }
-  };
+  const [catalogRefreshKey, setCatalogRefreshKey] = useState(0);
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    }
+  }, [user]);
 
-  const handleAddProduct = async (newProduct) => {
+  // Fungsi Logout membersihkan user dan token
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    setUser(null);
+  };
+
+  // Tombol hapus produk
+  const handleDeleteProduct = async (idProduct) => {
+    const isConfirmed = window.confirm(
+      "Apakah kamu yakin ingin menghapus produk ini?",
+    );
+
+    if (!isConfirmed) return;
+
     try {
-      // Kirim data snack baru ke backend API
-      await axios.post("http://localhost:3000/api/products", newProduct);
+      await axios.delete(`http://localhost:3000/api/products/${idProduct}`);
 
-      // Refresh data produk otomatis
-      fetchProducts();
+      alert("Produk berhasil dihapus!");
 
-      alert("Snack baru berhasil tersimpan ke database MySQL");
+      setCatalogRefreshKey((previousKey) => previousKey + 1);
     } catch (error) {
-      console.error("Gagal menyimpan snack baru:", error);
-      alert("Gagal menambahkan snack. Cek koneksi API!");
+      console.error("Gagal menghapus produk:", error);
+      alert("Gagal menghapus produk dari database.");
     }
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        minHeight: "100vh",
-        background: "#fff0f5",
-        fontFamily: "sans-serif",
-      }}
-    >
-      {/* BUNGKUS SELURUH KOMPONEN DI DALAM AUTHPROVIDER UNTUK GLOBAL STATE */}
-      <AuthProvider>
-        {/* Layout Global (Navbar & Footer selalu muncul di setiap rute) */}
-        <Navbar />
-
-        {/* Sistem Navigasi Antar Halaman */}
-        <Routes>
-          {/* Jalur ke halaman utama dashboard */}
-          <Route
-            path="/"
-            element={
-              <DashboardPage
-                products={products}
-                handleAddProduct={handleAddProduct}
-              />
-            }
+    <Routes>
+      {/* LOGIN: Diubah agar menyimpan user sekaligus token dari backend */}
+      <Route
+        path="/login"
+        element={
+          <Login
+            onLogin={(data) => {
+              if (data.token) {
+                localStorage.setItem("token", data.token);
+              }
+              setUser(data.user || data);
+            }}
           />
-          {/* Jalur ke halaman login & register */}
-          <Route path="/login" element={<LoginPlaceholder />} />
-          <Route path="/register" element={<RegisterPlaceholder />} />
-        </Routes>
+        }
+      />
 
-        <Footer />
-      </AuthProvider>
-    </div>
+      {/* REGISTER */}
+      <Route path="/register" element={<Register />} />
+
+      {/* HALAMAN UTAMA */}
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Layout user={user} onLogout={handleLogout}>
+              {user?.role === "admin" ? (
+                <Admin />
+              ) : (
+                <Katalog
+                  key={catalogRefreshKey}
+                  onDeleteProduct={handleDeleteProduct}
+                />
+              )}
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* KATALOG */}
+      <Route
+        path="/katalog"
+        element={
+          <ProtectedRoute>
+            <Layout user={user} onLogout={handleLogout}>
+              <Katalog
+                key={catalogRefreshKey}
+                onDeleteProduct={handleDeleteProduct}
+              />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* KERANJANG */}
+      <Route
+        path="/keranjang"
+        element={
+          <ProtectedRoute>
+            <Layout user={user} onLogout={handleLogout}>
+              <Keranjang />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* RIWAYAT */}
+      <Route
+        path="/riwayat"
+        element={
+          <ProtectedRoute>
+            <Layout user={user} onLogout={handleLogout}>
+              <Riwayat user={user} />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
   );
 }
 

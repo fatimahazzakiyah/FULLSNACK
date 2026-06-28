@@ -1,43 +1,45 @@
 const jwt = require("jsonwebtoken");
- 
+
 const SECRET_KEY = "fullsnack_secret_key";
- 
-// ✅ MIDDLEWARE 1: verifyToken
-// Cek apakah user sudah login (token valid)
+
 function verifyToken(req, res, next) {
   const authHeader = req.headers["authorization"];
- 
+
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Akses ditolak! Silakan login dulu ❌" });
+    return res
+      .status(401)
+      .json({ message: "Akses ditolak. Silakan login terlebih dahulu." });
   }
- 
+
   const token = authHeader.split(" ")[1];
- 
+
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
-    req.user = decoded; // data user tersimpan di req.user
+    req.user = decoded;
     next();
   } catch (err) {
-    return res.status(401).json({ message: "Token tidak valid atau sudah expired ❌" });
+    return res
+      .status(401)
+      .json({ message: "Token tidak valid atau sudah expired." });
   }
 }
- 
-// ✅ MIDDLEWARE 2: isAdmin
-// Hanya boleh diakses admin
+
 function isAdmin(req, res, next) {
   if (!req.user || req.user.role !== "admin") {
-    return res.status(403).json({ message: "Akses ditolak! Hanya admin yang bisa ❌" });
+    return res
+      .status(403)
+      .json({ message: "Akses ditolak. Hanya admin yang diizinkan." });
   }
   next();
 }
- 
-// ✅ MIDDLEWARE 3: isUser
-// Hanya boleh diakses user biasa (bukan admin)
+
 function isUser(req, res, next) {
   if (!req.user || req.user.role !== "user") {
-    return res.status(403).json({ message: "Akses ditolak! Hanya user yang bisa ❌" });
+    return res
+      .status(403)
+      .json({ message: "Akses ditolak. Hanya user yang diizinkan." });
   }
   next();
 }
- 
+
 module.exports = { verifyToken, isAdmin, isUser, SECRET_KEY };

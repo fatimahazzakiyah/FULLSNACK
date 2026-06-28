@@ -1,8 +1,32 @@
 import React from "react";
+import axios from "axios";
 
-// 🌸 ANGGOTA 3: TIYA - Fitur Hapus Produk dengan API DELETE
-// ProductCard menerima fungsi onDelete dari Products.jsx
 const ProductCard = ({ product, onDelete }) => {
+  const handleAddToCart = async () => {
+    try {
+      // Mengambil token autentikasi yang tersimpan di localStorage browser
+      const token = localStorage.getItem("token");
+
+      // Mengirim data dengan nama properti productId agar terbaca oleh backend
+      await axios.post(
+        "http://localhost:3000/api/cart",
+        {
+          productId: product.id_product,
+          quantity: 1,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      alert("Produk berhasil ditambahkan ke keranjang");
+    } catch (error) {
+      console.error(error);
+      alert("Gagal masuk keranjang, cek koneksi API");
+    }
+  };
+
   return (
     <div
       style={{
@@ -14,8 +38,9 @@ const ProductCard = ({ product, onDelete }) => {
         textAlign: "center",
       }}
     >
-      {/* Tampilan icon dan informasi produk dari komponen ProductCard */}
-      <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>🍿</div>
+      <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>
+        [Gambar Produk]
+      </div>
 
       <h4
         style={{
@@ -48,12 +73,29 @@ const ProductCard = ({ product, onDelete }) => {
         Sisa Stok: {product.stok} pcs
       </p>
 
-      {/* Tombol Hapus buatan Tiya - disesuaikan dengan field id_product pada database */}
+      {/* Tombol Tambahkan ke Keranjang */}
+      <button
+        onClick={handleAddToCart}
+        style={{
+          width: "100%",
+          backgroundColor: "#ff69b4",
+          color: "#ffffff",
+          border: "none",
+          padding: "0.6rem 0.8rem",
+          borderRadius: "6px",
+          cursor: "pointer",
+          fontWeight: "bold",
+          marginBottom: "0.5rem",
+        }}
+      >
+        Tambahkan ke Keranjang
+      </button>
+
+      {/* Tombol Hapus Snack */}
       <button
         onClick={() => onDelete(product.id_product)}
         style={{
           width: "100%",
-          marginTop: "0.5rem",
           backgroundColor: "#e74c3c",
           color: "#ffffff",
           border: "none",
@@ -62,7 +104,7 @@ const ProductCard = ({ product, onDelete }) => {
           cursor: "pointer",
         }}
       >
-        🗑️ Hapus Snack
+        Hapus Snack
       </button>
     </div>
   );

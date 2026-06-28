@@ -1,78 +1,113 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useContext } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
-const Riwayat = ({ user }) => {
+export default function Riwayat() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { token, user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Ambil data riwayat belanja dari database berdasarkan ID User
-    // Pastikan Revani sudah buat endpoint ini ya!
+    if (!token) {
+      navigate("/login");
+      return;
+    }
     const fetchOrders = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/orders/${user.id}`);
+        const response = await axios.get("http://localhost:3000/api/orders", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setOrders(response.data);
-        setLoading(false);
       } catch (err) {
-        console.error("Gagal ambil riwayat", err);
+        console.error("Gagal memuat riwayat:", err);
+      } finally {
         setLoading(false);
       }
     };
+    fetchOrders();
+  }, [token]);
 
-    if (user && user.id) {
-      fetchOrders();
-    }
-  }, [user]);
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
-  if (loading) {
-    return <p style={{ textAlign: 'center', marginTop: '20px' }}>Lagi loading... sabar yaa ✨</p>;
-  }
+  if (loading)
+    return (
+      <div style={{ textAlign: "center", marginTop: "50px", color: "#ff69b4" }}>
+        Memuat riwayat...
+      </div>
+    );
 
   return (
-    <div className="container" style={{ padding: '20px' }}>
-      <h2 className="section-title" style={{ color: '#ff85a2', textAlign: 'center' }}>
-        Riwayat Belanja 🍿
-      </h2>
-      
-      <div className="table-container">
-        {orders.length > 0 ? (
-          <table className="cart-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#ffe4e1' }}>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ffb6c1' }}>Tanggal</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ffb6c1' }}>Total Belanja</th>
-                <th style={{ padding: '10px', borderBottom: '2px solid #ffb6c1' }}>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((item) => (
-                <tr key={item.id} style={{ textAlign: 'center' }}>
-                  <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
-                    {new Date(item.created_at).toLocaleDateString()}
-                  </td>
-                  <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
-                    Rp {item.total_harga ? item.total_harga.toLocaleString() : '0'}
-                  </td>
-                  <td style={{ 
-                    padding: '10px', 
-                    borderBottom: '1px solid #eee',
-                    color: '#2ecc71', 
-                    fontWeight: 'bold' 
-                  }}>
-                    {item.status}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div style={{ backgroundColor: "#fff0f5", minHeight: "100vh" }}>
+      <nav className="navbar">
+        <h2>FullSnack</h2>
+        <div className="navbar-links">
+          <button className="nav-btn" onClick={() => navigate("/")}>
+            Katalog
+          </button>
+          <button className="nav-btn" onClick={() => navigate("/cart")}>
+            Keranjang
+          </button>
+          <span className="nav-greeting">Halo, {user?.nama}</span>
+          <button className="nav-btn-danger" onClick={handleLogout}>
+            Keluar
+          </button>
+        </div>
+      </nav>
+
+      <div className="riwayat-container">
+        <h2
+          style={{
+            color: "#ff85a2",
+            textAlign: "center",
+            marginBottom: "20px",
+          }}
+        >
+          Riwayat Belanja
+        </h2>
+        {orders.length === 0 ? (
+          <p style={{ textAlign: "center", color: "#aaa" }}>
+            Belum ada riwayat pesanan.
+          </p>
         ) : (
-          <div style={{ textAlign: 'center', marginTop: '50px' }}>
-            <p style={{ color: '#ffb6c1' }}>Belum ada transaksi nih. Yuk jajan dulu! ✨</p>
-          </div>
+          orders.map((item) => (
+            <div key={item.id_order} className="order-card">
+              <p
+                style={{
+                  fontWeight: "bold",
+                  color: "#ff69b4",
+                  marginBottom: "6px",
+                }}
+              >
+                Order #{item.id_order}
+              </p>
+              <p style={{ marginBottom: "4px" }}>
+                Total: Rp {Number(item.total_harga).toLocaleString("id-ID")}
+              </p>
+              <p
+                style={{ color: "#888", fontSize: "13px", marginBottom: "4px" }}
+              >
+                Status: {item.status}
+              </p>
+              {item.created_at && (
+                <p style={{ color: "#aaa", fontSize: "12px" }}>
+                  {new Date(item.created_at).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              )}
+            </div>
+          ))
         )}
       </div>
     </div>
   );
-};
-
-export default Riwayat;
+}

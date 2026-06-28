@@ -1,160 +1,83 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useContext } from "react";
 import axios from "axios";
 import { Routes, Route, Navigate } from "react-router-dom";
-
 import "./App.css";
+import { AuthContext } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Admin from "./pages/Admin";
 import Katalog from "./pages/Katalog";
 import Keranjang from "./pages/Keranjang";
 import Riwayat from "./pages/Riwayat";
-import Layout from "./components/Layout";
-import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import Admin from "./pages/Admin";
 
 function App() {
-  // Ambil data user dari localStorage saat aplikasi pertama kali dibuka
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem("user");
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
-
-  console.log("USER APP:", user);
-
-  // Dipakai untuk memuat ulang katalog setelah produk berhasil dihapus
+  const { token, user } = useContext(AuthContext);
   const [catalogRefreshKey, setCatalogRefreshKey] = useState(0);
 
-  // Simpan user ke localStorage setelah login
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
-    }
-  }, [user]);
-
-  // Logout
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    setUser(null);
-  };
-
-  // Tombol hapus produk
   const handleDeleteProduct = async (idProduct) => {
-    const isConfirmed = window.confirm(
-      "Apakah kamu yakin ingin menghapus produk ini?"
-    );
-
-    if (!isConfirmed) return;
-
+    if (!window.confirm("Apakah kamu yakin ingin menghapus produk ini?"))
+      return;
     try {
-      await axios.delete(
-        `http://localhost:3000/api/products/${idProduct}`
-      );
-
-      alert("Produk berhasil dihapus!");
-
-      setCatalogRefreshKey(
-        (previousKey) => previousKey + 1
-      );
+      await axios.delete(`http://localhost:3000/api/products/${idProduct}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      alert("Produk berhasil dihapus.");
+      setCatalogRefreshKey((prev) => prev + 1);
     } catch (error) {
       console.error("Gagal menghapus produk:", error);
-      alert("Gagal menghapus produk dari database.");
+      alert("Gagal menghapus produk.");
     }
+  };
+
+  // Komponen untuk proteksi route berdasarkan role
+  const AdminRoute = ({ children }) => {
+    if (!token) return <Navigate to="/login" />;
+    if (user?.role !== "admin") return <Navigate to="/" />;
+    return children;
+  };
+
+  const UserRoute = ({ children }) => {
+    if (!token) return <Navigate to="/login" />;
+    if (user?.role !== "user") return <Navigate to="/admin" />;
+    return children;
+  };
+
+  const HomeRoute = () => {
+    if (!token) return <Navigate to="/login" />;
+    if (user?.role === "admin") return <Navigate to="/admin" />;
+    return (
+      <Katalog onDeleteProduct={handleDeleteProduct} key={catalogRefreshKey} />
+    );
   };
 
   return (
     <Routes>
-      {/* LOGIN */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/" element={<HomeRoute />} />
       <Route
-        path="/login"
+        path="/admin"
         element={
-          <Login
-            onLogin={(data) => {
-              setUser(data);
-            }}
-          />
+          <AdminRoute>
+            <Admin />
+          </AdminRoute>
         }
       />
-
-      {/* REGISTER */}
       <Route
-        path="/register"
-        element={<Register />}
-      />
-
-      {/* HALAMAN UTAMA */}
-      <Route
-        path="/"
+        path="/cart"
         element={
-          <ProtectedRoute>
-            <Layout user={user} onLogout={handleLogout}>
-              {user?.role === "admin" ? (
-                <Admin />
-              ) : (
-                <Katalog
-                  key={catalogRefreshKey}
-                  onDeleteProduct={handleDeleteProduct}
-                />
-              )}
-            </Layout>
-          </ProtectedRoute>
+          <UserRoute>
+            <Keranjang />
+          </UserRoute>
         }
       />
-
-      {/* KATALOG */}
-      <Route
-        path="/katalog"
-        element={
-          <ProtectedRoute>
-            <Layout
-              user={user}
-              onLogout={handleLogout}
-            >
-              <Katalog
-                key={catalogRefreshKey}
-                onDeleteProduct={
-                  handleDeleteProduct
-                }
-              />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      {/* KERANJANG */}
-      <Route
-        path="/keranjang"
-        element={
-          <ProtectedRoute>
-            <Layout
-              user={user}
-              onLogout={handleLogout}
-            >
-              <Keranjang />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      {/* RIWAYAT */}
       <Route
         path="/riwayat"
         element={
-          <ProtectedRoute>
-            <Layout
-              user={user}
-              onLogout={handleLogout}
-            >
-              <Riwayat user={user} />
-            </Layout>
-          </ProtectedRoute>
+          <UserRoute>
+            <Riwayat />
+          </UserRoute>
         }
-      />
-
-      {/* Jika URL tidak ditemukan */}
-      <Route
-        path="*"
-        element={<Navigate to="/" />}
       />
     </Routes>
   );
