@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
@@ -9,9 +9,9 @@ export default function Keranjang() {
   const [totalBayar, setTotalBayar] = useState(0);
   const { token, user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
-  const API = "http://localhost:3000/api";
+  const API = process.env.REACT_APP_API_URL + "/api";
 
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     if (!token) return;
     try {
       const res = await axios.get(`${API}/cart`, {
@@ -21,11 +21,11 @@ export default function Keranjang() {
     } catch (err) {
       console.error("Gagal memuat keranjang:", err);
     }
-  };
+  }, [token, API]);
 
   useEffect(() => {
     fetchCart();
-  }, [token]);
+  }, [fetchCart]);
 
   const handleRemove = async (id_cart) => {
     try {

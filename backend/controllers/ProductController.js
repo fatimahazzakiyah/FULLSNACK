@@ -58,15 +58,40 @@ class ProductController {
 
   async update(req, res) {
     const { id } = req.params;
-    const { stok } = req.body;
-    db.query(
-      "UPDATE products SET stok = ? WHERE id_product = ?",
-      [stok, id],
-      (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.status(200).json({ message: "Stok berhasil diperbarui." });
-      },
-    );
+    const { nama, harga, stok } = req.body;
+    const image = req.file ? req.file.filename : null;
+
+    if (image) {
+      // Edit lengkap dengan ganti gambar
+      db.query(
+        "UPDATE products SET nama = ?, harga = ?, stok = ?, image = ? WHERE id_product = ?",
+        [nama, harga, stok, image, id],
+        (err) => {
+          if (err) return res.status(500).json({ error: err.message });
+          res.status(200).json({ message: "Produk berhasil diperbarui." });
+        },
+      );
+    } else if (nama && harga) {
+      // Edit nama, harga, stok tanpa ganti gambar
+      db.query(
+        "UPDATE products SET nama = ?, harga = ?, stok = ? WHERE id_product = ?",
+        [nama, harga, stok, id],
+        (err) => {
+          if (err) return res.status(500).json({ error: err.message });
+          res.status(200).json({ message: "Produk berhasil diperbarui." });
+        },
+      );
+    } else {
+      // Restock — tambahkan ke stok yang ada
+      db.query(
+        "UPDATE products SET stok = stok + ? WHERE id_product = ?",
+        [stok, id],
+        (err) => {
+          if (err) return res.status(500).json({ error: err.message });
+          res.status(200).json({ message: "Stok berhasil diperbarui." });
+        },
+      );
+    }
   }
 }
 

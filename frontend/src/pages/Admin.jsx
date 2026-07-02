@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
-const api = axios.create({ baseURL: "http://localhost:3000/api" });
+const api = axios.create({ baseURL: `${process.env.REACT_APP_API_URL}/api` });
 
 export default function Admin() {
   const { token, user, logout } = useContext(AuthContext);
@@ -20,6 +20,11 @@ export default function Admin() {
   const [isStokError, setIsStokError] = useState(false);
   const [stokInput, setStokInput] = useState({});
 
+  const [editId, setEditId] = useState(null);
+  const [editForm, setEditForm] = useState({ nama: "", harga: "", stok: "" });
+  const [editFile, setEditFile] = useState(null);
+  const [editFileName, setEditFileName] = useState("");
+
   const buttonPrimary = {
     padding: "10px 20px",
     margin: "5px",
@@ -31,15 +36,27 @@ export default function Admin() {
     fontWeight: "bold",
     fontSize: "14px",
   };
-
   const buttonDanger = { ...buttonPrimary, backgroundColor: "#ff6b81" };
   const buttonUpdate = { ...buttonPrimary, backgroundColor: "#ffaec9" };
+  const buttonEdit = {
+    ...buttonPrimary,
+    backgroundColor: "#ffd6e7",
+    color: "#ff69b4",
+  };
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
       setFile(selectedFile);
       setFileName(selectedFile.name);
+    }
+  };
+
+  const handleEditFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setEditFile(selectedFile);
+      setEditFileName(selectedFile.name);
     }
   };
 
@@ -51,7 +68,7 @@ export default function Admin() {
       setProducts(response.data);
       const initialStok = {};
       response.data.forEach((p) => {
-        initialStok[p.id_product] = p.stok;
+        initialStok[p.id_product] = "";
       });
       setStokInput(initialStok);
     } catch (error) {
@@ -126,25 +143,55 @@ export default function Admin() {
       .catch(() => alert("Gagal menghapus produk."));
   };
 
-  const handleUpdateStock = (id) => {
-    const stokBaru = stokInput[id];
-    if (stokBaru === undefined || stokBaru === "") {
-      alert("Stok tidak boleh kosong.");
+  const handleRestock = (id) => {
+    const tambahan = stokInput[id];
+    if (!tambahan || Number(tambahan) <= 0) {
+      alert("Masukkan jumlah stok yang ingin ditambahkan.");
       return;
     }
     api
       .put(
         `/products/${id}`,
-        { stok: Number(stokBaru) },
+        { stok: Number(tambahan) },
         {
           headers: { Authorization: `Bearer ${token}` },
         },
       )
       .then(() => {
-        alert("Stok berhasil diperbarui.");
+        alert(`Stok berhasil ditambah ${tambahan} pcs.`);
+        setStokInput((prev) => ({ ...prev, [id]: "" }));
         fetchProducts();
       })
       .catch(() => alert("Gagal memperbarui stok."));
+  };
+
+  const handleEditClick = (p) => {
+    setEditId(p.id_product);
+    setEditForm({ nama: p.nama, harga: p.harga, stok: p.stok });
+    setEditFile(null);
+    setEditFileName("");
+  };
+
+  const handleEditSave = (id) => {
+    const formData = new FormData();
+    formData.append("nama", editForm.nama);
+    formData.append("harga", editForm.harga);
+    formData.append("stok", editForm.stok);
+    if (editFile) formData.append("image", editFile);
+
+    api
+      .put(`/products/${id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        alert("Produk berhasil diperbarui.");
+        setEditId(null);
+        fetchProducts();
+      })
+      .catch(() => alert("Gagal memperbarui produk."));
   };
 
   const handleLogout = () => {
@@ -240,7 +287,7 @@ export default function Admin() {
                 style={{
                   border: isStokError ? "1px solid red" : "1px solid #ffb6c1",
                 }}
-                placeholder="Stok"
+                placeholder="Stok Awal"
                 type="number"
                 value={form.stok}
                 onChange={(e) => {
@@ -294,7 +341,6 @@ export default function Admin() {
           </form>
         </div>
 
-        {/* LOADING / ERROR */}
         {isLoading && (
           <p
             style={{
@@ -314,7 +360,7 @@ export default function Admin() {
               fontWeight: "bold",
             }}
           >
-            Gagal memuat data. Pastikan server backend sudah berjalan.
+            Gagal memuat data.
           </p>
         )}
 
@@ -328,6 +374,7 @@ export default function Admin() {
                   <th style={{ padding: "15px" }}>Nama Produk</th>
                   <th style={{ padding: "15px" }}>Harga</th>
                   <th style={{ padding: "15px" }}>Stok</th>
+                  <th style={{ padding: "15px" }}>Restock</th>
                   <th style={{ padding: "15px" }}>Aksi</th>
                 </tr>
               </thead>
@@ -335,7 +382,7 @@ export default function Admin() {
                 {products.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="5"
+                      colSpan="6"
                       style={{
                         textAlign: "center",
                         padding: "30px",
@@ -347,68 +394,216 @@ export default function Admin() {
                   </tr>
                 ) : (
                   products.map((p) => (
-                    <tr
-                      key={p.id_product}
-                      style={{ borderBottom: "1px solid #fff0f5" }}
-                    >
-                      <td style={{ padding: "10px", textAlign: "center" }}>
-                        {p.image ? (
-                          <img
-                            src={`http://localhost:3000/uploads/${p.image}`}
-                            alt={p.nama}
+                    <React.Fragment key={p.id_product}>
+                      <tr style={{ borderBottom: "1px solid #fff0f5" }}>
+                        <td style={{ padding: "10px", textAlign: "center" }}>
+                          {p.image ? (
+                            <img
+                              src={`${process.env.REACT_APP_API_URL}/uploads/${p.image}`}
+                              alt={p.nama}
+                              style={{
+                                width: "80px",
+                                height: "80px",
+                                objectFit: "cover",
+                                borderRadius: "10px",
+                              }}
+                            />
+                          ) : (
+                            <span style={{ color: "#ccc", fontSize: "12px" }}>
+                              Tidak ada gambar
+                            </span>
+                          )}
+                        </td>
+                        <td style={{ padding: "10px", textAlign: "center" }}>
+                          {p.nama}
+                        </td>
+                        <td style={{ padding: "10px", textAlign: "center" }}>
+                          Rp {Number(p.harga).toLocaleString("id-ID")}
+                        </td>
+                        <td style={{ padding: "10px", textAlign: "center" }}>
+                          <span
                             style={{
-                              width: "80px",
-                              height: "80px",
-                              objectFit: "cover",
-                              borderRadius: "10px",
+                              fontWeight: "bold",
+                              color: p.stok === 0 ? "red" : "#ff69b4",
                             }}
-                          />
-                        ) : (
-                          <span style={{ color: "#ccc", fontSize: "12px" }}>
-                            Tidak ada gambar
+                          >
+                            {p.stok} pcs
                           </span>
-                        )}
-                      </td>
-                      <td style={{ padding: "10px", textAlign: "center" }}>
-                        {p.nama}
-                      </td>
-                      <td style={{ padding: "10px", textAlign: "center" }}>
-                        Rp {Number(p.harga).toLocaleString("id-ID")}
-                      </td>
-                      <td style={{ padding: "10px", textAlign: "center" }}>
-                        <input
-                          type="number"
-                          value={stokInput[p.id_product] ?? p.stok}
-                          onChange={(e) =>
-                            setStokInput((prev) => ({
-                              ...prev,
-                              [p.id_product]: e.target.value,
-                            }))
-                          }
-                          style={{
-                            width: "70px",
-                            padding: "6px",
-                            borderRadius: "6px",
-                            border: "1px solid #ffb6c1",
-                            textAlign: "center",
-                          }}
-                        />
-                      </td>
-                      <td style={{ padding: "10px", textAlign: "center" }}>
-                        <button
-                          style={buttonUpdate}
-                          onClick={() => handleUpdateStock(p.id_product)}
-                        >
-                          Update Stok
-                        </button>
-                        <button
-                          style={buttonDanger}
-                          onClick={() => handleDelete(p.id_product)}
-                        >
-                          Hapus
-                        </button>
-                      </td>
-                    </tr>
+                        </td>
+                        <td style={{ padding: "10px", textAlign: "center" }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "6px",
+                            }}
+                          >
+                            <input
+                              type="number"
+                              min="1"
+                              placeholder="Jumlah..."
+                              value={stokInput[p.id_product] || ""}
+                              onChange={(e) =>
+                                setStokInput((prev) => ({
+                                  ...prev,
+                                  [p.id_product]: e.target.value,
+                                }))
+                              }
+                              style={{
+                                width: "80px",
+                                padding: "6px",
+                                borderRadius: "6px",
+                                border: "1px solid #ffb6c1",
+                                textAlign: "center",
+                              }}
+                            />
+                            <button
+                              style={buttonUpdate}
+                              onClick={() => handleRestock(p.id_product)}
+                            >
+                              Restock
+                            </button>
+                          </div>
+                        </td>
+                        <td style={{ padding: "10px", textAlign: "center" }}>
+                          <button
+                            style={buttonEdit}
+                            onClick={() => handleEditClick(p)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            style={buttonDanger}
+                            onClick={() => handleDelete(p.id_product)}
+                          >
+                            Hapus
+                          </button>
+                        </td>
+                      </tr>
+
+                      {/* FORM EDIT */}
+                      {editId === p.id_product && (
+                        <tr style={{ backgroundColor: "#fff5f7" }}>
+                          <td colSpan="6" style={{ padding: "20px" }}>
+                            <h4
+                              style={{ color: "#ff69b4", marginBottom: "12px" }}
+                            >
+                              Edit Produk: {p.nama}
+                            </h4>
+                            <div
+                              style={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: "10px",
+                                alignItems: "flex-start",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                }}
+                              >
+                                <input
+                                  className="admin-input"
+                                  placeholder="Nama Produk"
+                                  value={editForm.nama}
+                                  onChange={(e) =>
+                                    setEditForm({
+                                      ...editForm,
+                                      nama: e.target.value,
+                                    })
+                                  }
+                                />
+                              </div>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                }}
+                              >
+                                <input
+                                  className="admin-input"
+                                  placeholder="Harga"
+                                  type="number"
+                                  value={editForm.harga}
+                                  onChange={(e) =>
+                                    setEditForm({
+                                      ...editForm,
+                                      harga: e.target.value,
+                                    })
+                                  }
+                                />
+                              </div>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                }}
+                              >
+                                <input
+                                  className="admin-input"
+                                  placeholder="Stok"
+                                  type="number"
+                                  value={editForm.stok}
+                                  onChange={(e) =>
+                                    setEditForm({
+                                      ...editForm,
+                                      stok: e.target.value,
+                                    })
+                                  }
+                                />
+                              </div>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                }}
+                              >
+                                <label
+                                  style={{
+                                    ...buttonPrimary,
+                                    padding: "10px 15px",
+                                    display: "inline-block",
+                                  }}
+                                >
+                                  Ganti Foto
+                                  <input
+                                    type="file"
+                                    onChange={handleEditFileChange}
+                                    style={{ display: "none" }}
+                                    accept=".jpg,.jpeg,.png"
+                                  />
+                                </label>
+                                <span
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "#999",
+                                    marginTop: "4px",
+                                  }}
+                                >
+                                  {editFileName ||
+                                    "Biarkan kosong jika tidak ganti foto"}
+                                </span>
+                              </div>
+                              <button
+                                style={buttonUpdate}
+                                onClick={() => handleEditSave(p.id_product)}
+                              >
+                                Simpan
+                              </button>
+                              <button
+                                style={buttonDanger}
+                                onClick={() => setEditId(null)}
+                              >
+                                Batal
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   ))
                 )}
               </tbody>

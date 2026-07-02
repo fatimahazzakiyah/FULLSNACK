@@ -14,10 +14,10 @@ export default function Login() {
     e.preventDefault();
     setErrorMessage("");
     try {
-      const res = await axios.post("http://localhost:3000/api/login", {
-        email,
-        password,
-      });
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/login`,
+        { email, password },
+      );
       login(res.data.token, res.data.user);
       navigate("/");
     } catch (err) {

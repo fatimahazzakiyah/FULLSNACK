@@ -16,9 +16,10 @@ export default function Riwayat() {
     }
     const fetchOrders = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/orders", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/orders`,
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
         setOrders(response.data);
       } catch (err) {
         console.error("Gagal memuat riwayat:", err);
@@ -27,6 +28,7 @@ export default function Riwayat() {
       }
     };
     fetchOrders();
+    // eslint-disable-next-line
   }, [token]);
 
   const handleLogout = () => {
